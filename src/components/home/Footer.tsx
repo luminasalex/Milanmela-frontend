@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Globe, Share2, Link2, Mail } from "lucide-react";
 
 const quickLinks = [
-  { label: "Home", href: "#" },
+  { label: "Home", href: "" },
   { label: "About Milanmela", href: "#about" },
   { label: "Upcoming Events", href: "#upcoming-events" },
   { label: "Gallery Showcase", href: "#gallery" },

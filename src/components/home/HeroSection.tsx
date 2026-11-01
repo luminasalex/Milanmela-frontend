@@ -61,7 +61,7 @@ export default function HeroSection() {
             >
               <span className="size-2 rounded-full bg-[#C83D2B] animate-pulse" />
               <span className="text-xs font-semibold tracking-widest text-[#65472D] uppercase">
-                Bengali Cultural Platform
+                Cultural Platform
               </span>
             </motion.div>
 
