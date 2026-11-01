@@ -58,7 +58,7 @@ const initialForm: EventFormData = {
     startTime: "",
     endTime: "",
     location: "",
-    category: "Festival",
+    category: "",
     description: "",
     imageUrl: "",
 };
@@ -126,6 +126,15 @@ export default function CreateEventPage() {
 
     const previewImage = form.imageUrl?.trim() || DEFAULT_IMAGE;
 
+    const isFormValid =
+        form.title.trim() !== "" &&
+        form.date.trim() !== "" &&
+        form.startTime.trim() !== "" &&
+        form.endTime.trim() !== "" &&
+        form.location.trim() !== "" &&
+        form.category.trim() !== "" &&
+        form.description.trim() !== "";
+
     function handleChange(
         e: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -147,6 +156,7 @@ export default function CreateEventPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        if (!isFormValid) return;
         setIsSubmitting(true);
         await new Promise((resolve) => setTimeout(resolve, 600));
         setIsSubmitting(false);
@@ -160,16 +170,14 @@ export default function CreateEventPage() {
     }
 
     const previewCardProps = {
-        title: form.title || "Baishakhi Mela 2026",
-        date: formatDate(form.date) || "April 14, 2026",
-        time: formatTimeRange(form.startTime, form.endTime) || "10:00 AM – 8:00 PM",
-        location: form.location || "Ramna Park, Dhaka",
-        category: form.category || "Festival",
-        description:
-            form.description ||
-            "Celebrate traditional Bengali festivities with vibrant music, folk performances, artisan stalls, and authentic cuisine.",
+        title: form.title,
+        date: formatDate(form.date),
+        time: formatTimeRange(form.startTime, form.endTime),
+        location: form.location,
+        category: form.category,
+        description: form.description,
         categoryColor:
-            CATEGORY_COLORS[form.category] || "bg-[#C83D2B]/90 text-white",
+            CATEGORY_COLORS[form.category] || "bg-[#064B38]/10 text-[#064B38]",
         isCompleted: autoCompleted,
         image: previewImage,
         imageUrl: previewImage,
@@ -561,6 +569,9 @@ export default function CreateEventPage() {
                                             onChange={handleChange}
                                             className="w-full h-11 px-4 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] appearance-none focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
                                         >
+                                            <option value="" disabled>
+                                                Select a category
+                                            </option>
                                             {CATEGORIES.map((cat) => (
                                                 <option key={cat.value} value={cat.value}>
                                                     {cat.label}
@@ -602,11 +613,16 @@ export default function CreateEventPage() {
                                 <div className="pt-2">
                                     <Button
                                         type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full h-12 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all"
+                                        disabled={isSubmitting || !isFormValid}
+                                        className="w-full h-12 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSubmitting ? "Creating Event..." : "Publish Event"}
                                     </Button>
+                                    {!isFormValid && (
+                                        <p className="mt-2 text-[11px] text-center text-[#C83D2B]/70">
+                                            Please fill all required fields to publish.
+                                        </p>
+                                    )}
                                 </div>
                             </form>
                         </motion.div>
