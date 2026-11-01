@@ -113,11 +113,52 @@ function isEventCompleted(date: string, endTime: string): boolean {
     return endDateTime.getTime() < Date.now();
 }
 
+// Async helper: validate that an image URL actually loads (with 2.5s timeout)
+async function validateImageUrl(url: string): Promise<boolean> {
+    if (!url) return true;
+    return new Promise((resolve) => {
+        const img = new window.Image();
+        const timer = setTimeout(() => {
+            img.onload = null;
+            img.onerror = null;
+            resolve(false);
+        }, 2500);
+
+        img.onload = () => {
+            clearTimeout(timer);
+            resolve(true);
+        };
+        img.onerror = () => {
+            clearTimeout(timer);
+            resolve(false);
+        };
+        img.src = url;
+    });
+}
+
+async function saveEvent(data: EventFormData) {
+    const res = await fetch("http://localhost:5000/create-event", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        throw new Error(`Server returned error: ${res.status}`);
+    }
+
+    const result = await res.json();
+    return result;
+}
+
 export default function CreateEventPage() {
     const [form, setForm] = useState<EventFormData>(initialForm);
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const autoCompleted = useMemo(
         () => isEventCompleted(form.date, form.endTime),
@@ -141,8 +182,13 @@ export default function CreateEventPage() {
         >
     ) {
         const target = e.target;
-        setForm((prev) => ({ ...prev, [target.name]: target.value }));
-        if (target.name === "imageUrl") setImageError(false);
+        const { name, value } = target;
+
+        setForm((prev) => ({ ...prev, [name]: value }));
+
+        if (name === "imageUrl") {
+            setImageError(false);
+        }
     }
 
     function applyPreset(start: string, end: string) {
@@ -156,17 +202,39 @@ export default function CreateEventPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (!isFormValid) return;
+        if (!isFormValid || isSubmitting) return;
+
         setIsSubmitting(true);
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        setIsSubmitting(false);
-        setSubmitted(true);
+        setSubmitError(null);
+
+        try {
+            // Validate image URL before submitting (non-blocking with timeout)
+            if (form.imageUrl.trim()) {
+                const imageOk = await validateImageUrl(form.imageUrl.trim());
+                if (!imageOk) {
+                    setImageError(true);
+                    throw new Error("The cover image URL could not be loaded.");
+                }
+            }
+
+            // Save event to database
+            await saveEvent(form);
+
+            setSubmitted(true);
+        } catch (err) {
+            const message =
+                err instanceof Error ? err.message : "Something went wrong.";
+            setSubmitError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     function handleReset() {
         setForm(initialForm);
         setSubmitted(false);
         setImageError(false);
+        setSubmitError(null);
     }
 
     const previewCardProps = {
@@ -274,15 +342,23 @@ export default function CreateEventPage() {
                                 onClick={handleReset}
                                 className="rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/85 px-6"
                             >
-                                Create Another Event
+                                Create Another
                             </Button>
+                            <Link href="/all-events">
+                                <Button
+                                    type="button"
+                                    className="w-full sm:w-auto rounded-full bg-[#C99A4B] text-[#064B38] hover:bg-[#C99A4B]/90 font-semibold px-6"
+                                >
+                                    View All Events
+                                </Button>
+                            </Link>
                             <Link href="/">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     className="w-full sm:w-auto rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] px-6"
                                 >
-                                    View on Home
+                                    Home
                                 </Button>
                             </Link>
                         </div>
@@ -395,9 +471,11 @@ export default function CreateEventPage() {
                                             <button
                                                 key={p.label}
                                                 type="button"
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     setForm((prev) => ({ ...prev, imageUrl: p.url }));
                                                     setImageError(false);
+                                                    const ok = await validateImageUrl(p.url);
+                                                    if (!ok) setImageError(true);
                                                 }}
                                                 className="px-2.5 h-6 rounded-full text-[10px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
                                             >
@@ -618,7 +696,14 @@ export default function CreateEventPage() {
                                     >
                                         {isSubmitting ? "Creating Event..." : "Publish Event"}
                                     </Button>
-                                    {!isFormValid && (
+
+                                    {submitError && (
+                                        <p className="mt-2 text-[11px] text-center text-[#C83D2B]">
+                                            ⚠ {submitError}
+                                        </p>
+                                    )}
+
+                                    {!isFormValid && !submitError && (
                                         <p className="mt-2 text-[11px] text-center text-[#C83D2B]/70">
                                             Please fill all required fields to publish.
                                         </p>

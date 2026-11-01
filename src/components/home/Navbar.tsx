@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link";
 import { Menu, X, User } from "lucide-react";
 import {
   Avatar,
@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/avatar";
 
 const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Upcoming Events", href: "#upcoming-events" },
-  { label: "Gallery Showcase", href: "#gallery" },
+  { label: "About", href: "/#about" },
+  { label: "Upcoming Events", href: "/#upcoming-events" },
+  { label: "Create Event", href: "/create-event" },
+  { label: "All Events", href: "/all-events" },
+  { label: "Gallery Showcase", href: "/#gallery" },
 ];
 
 export default function Navbar() {
@@ -26,20 +28,17 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between lg:h-20">
           {/* Logo + Brand */}
-          <a
-            href="#"
+          <Link
+            href="/"
             className="flex items-center gap-3 group"
             aria-label="Milanmela Home"
           >
-            <div className="relative size-10 lg:size-12 overflow-hidden rounded-full border-2 border-[#C99A4B]/50 shadow-sm transition-transform group-hover:scale-105">
-              <Image
-                src="/Milanmela.png"
-                alt="Milanmela Logo"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/Milanmela.png"
+              alt="Milanmela Logo"
+              className="size-10 lg:size-12 rounded-full border-2 border-[#C99A4B]/50 object-cover shadow-sm transition-transform group-hover:scale-105"
+            />
             <div className="flex flex-col leading-tight">
               <span
                 className="text-xl lg:text-2xl font-bold tracking-wide text-[#064B38]"
@@ -53,18 +52,18 @@ export default function Navbar() {
                 সংস্কৃতির ছোঁয়ায়
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="relative text-sm font-medium text-[#064B38] transition-colors hover:text-[#C83D2B] after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#C83D2B] after:transition-all hover:after:w-full"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -103,14 +102,14 @@ export default function Navbar() {
         <div className="lg:hidden border-t border-[#C99A4B]/20 bg-[#F7F1E3] px-4 py-4">
           <nav className="flex flex-col gap-3">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center py-2 text-sm font-medium text-[#064B38] border-b border-[#C99A4B]/20 hover:text-[#C83D2B] transition-colors last:border-0"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
