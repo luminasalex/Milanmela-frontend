@@ -6,7 +6,7 @@ import GalleryShowcase from "@/components/home/GalleryShowcase";
 import CompletedEvents from "@/components/home/CompletedEvents";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import AboutDetails from "@/components/home/AboutDetails";
-import Footer from "@/components/home/Footer";
+
 
 export default function Home() {
   return (
@@ -21,7 +21,6 @@ export default function Home() {
         <NewsletterSection />
         <AboutDetails />
       </main>
-      <Footer />
     </div>
   );
 }

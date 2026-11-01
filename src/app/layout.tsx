@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/home/Navbar";
+import { Footer } from "react-day-picker";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-[#F7F1E3]">
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
