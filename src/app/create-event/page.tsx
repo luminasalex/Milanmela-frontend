@@ -13,6 +13,9 @@ import {
     ChevronDown,
     Palette,
     ArrowLeft,
+    ImageIcon,
+    Link2,
+    X,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -36,6 +39,8 @@ const CATEGORY_COLORS: Record<string, string> = {
     Other: "bg-[#064B38]/10 text-[#064B38]",
 };
 
+const DEFAULT_IMAGE = "/Milanmela.png";
+
 interface EventFormData {
     title: string;
     date: string;
@@ -44,6 +49,7 @@ interface EventFormData {
     location: string;
     category: string;
     description: string;
+    imageUrl: string;
 }
 
 const initialForm: EventFormData = {
@@ -54,6 +60,7 @@ const initialForm: EventFormData = {
     location: "",
     category: "Festival",
     description: "",
+    imageUrl: "",
 };
 
 function formatDate(raw: string): string {
@@ -84,10 +91,6 @@ function formatTimeRange(start: string, end: string): string {
     return s || e || "";
 }
 
-/**
- * Auto-complete detection based on date + end time.
- * Fully deterministic because inputs are HTML time pickers.
- */
 function isEventCompleted(date: string, endTime: string): boolean {
     if (!date) return false;
     const eventDate = new Date(date);
@@ -114,12 +117,14 @@ export default function CreateEventPage() {
     const [form, setForm] = useState<EventFormData>(initialForm);
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
-    // Auto-detect completion based on date + end time
     const autoCompleted = useMemo(
         () => isEventCompleted(form.date, form.endTime),
         [form.date, form.endTime]
     );
+
+    const previewImage = form.imageUrl?.trim() || DEFAULT_IMAGE;
 
     function handleChange(
         e: React.ChangeEvent<
@@ -128,14 +133,19 @@ export default function CreateEventPage() {
     ) {
         const target = e.target;
         setForm((prev) => ({ ...prev, [target.name]: target.value }));
+        if (target.name === "imageUrl") setImageError(false);
     }
 
-    /** Quick preset: fill start & end time with common windows. */
     function applyPreset(start: string, end: string) {
         setForm((prev) => ({ ...prev, startTime: start, endTime: end }));
     }
 
-    async function handleSubmit(e: React.FormEvent) {
+    function clearImage() {
+        setForm((prev) => ({ ...prev, imageUrl: "" }));
+        setImageError(false);
+    }
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsSubmitting(true);
         await new Promise((resolve) => setTimeout(resolve, 600));
@@ -146,6 +156,7 @@ export default function CreateEventPage() {
     function handleReset() {
         setForm(initialForm);
         setSubmitted(false);
+        setImageError(false);
     }
 
     const previewCardProps = {
@@ -160,6 +171,8 @@ export default function CreateEventPage() {
         categoryColor:
             CATEGORY_COLORS[form.category] || "bg-[#C83D2B]/90 text-white",
         isCompleted: autoCompleted,
+        image: previewImage,
+        imageUrl: previewImage,
     };
 
     return (
@@ -249,6 +262,7 @@ export default function CreateEventPage() {
 
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Button
+                                type="button"
                                 onClick={handleReset}
                                 className="rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/85 px-6"
                             >
@@ -256,6 +270,7 @@ export default function CreateEventPage() {
                             </Button>
                             <Link href="/">
                                 <Button
+                                    type="button"
                                     variant="outline"
                                     className="w-full sm:w-auto rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] px-6"
                                 >
@@ -274,7 +289,7 @@ export default function CreateEventPage() {
                             transition={{ duration: 0.5 }}
                             className="lg:col-span-7 bg-white rounded-3xl border border-[#C99A4B]/25 shadow-xl p-6 sm:p-8 md:p-10"
                         >
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} noValidate className="space-y-6">
                                 {/* Event Title */}
                                 <div className="space-y-2">
                                     <label
@@ -294,6 +309,100 @@ export default function CreateEventPage() {
                                         placeholder="e.g. Poila Boishakh Grand Celebration"
                                         className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
                                     />
+                                </div>
+
+                                {/* Cover Image by URL only */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <label
+                                            htmlFor="imageUrl"
+                                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                        >
+                                            <ImageIcon className="size-3.5 text-[#C99A4B]" />
+                                            Cover Image URL
+                                        </label>
+                                        <span className="text-[10px] lowercase text-[#65472D]/60">
+                                            paste a public image link
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-stretch gap-3">
+                                        {/* Thumbnail preview */}
+                                        <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border border-[#C99A4B]/35 bg-[#F7F1E3]/60">
+                                            {previewImage && !imageError ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={previewImage}
+                                                    alt="Cover preview"
+                                                    className="w-full h-full object-cover"
+                                                    onError={() => setImageError(true)}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-[#C99A4B]">
+                                                    <ImageIcon className="size-6" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* URL input */}
+                                        <div className="flex-1">
+                                            <div className="relative">
+                                                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#C99A4B] pointer-events-none" />
+                                                <input
+                                                    id="imageUrl"
+                                                    name="imageUrl"
+                                                    type="url"
+                                                    value={form.imageUrl ?? ""}
+                                                    onChange={handleChange}
+                                                    placeholder="https://example.com/event-image.jpg"
+                                                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                                />
+                                                {form.imageUrl && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={clearImage}
+                                                        aria-label="Clear image"
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 size-7 rounded-full flex items-center justify-center text-[#65472D]/70 hover:bg-[#C83D2B]/10 hover:text-[#C83D2B] transition-colors"
+                                                    >
+                                                        <X className="size-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="mt-1.5 text-[10px] text-[#65472D]/60">
+                                                Leave empty to use the default Milanmela image.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Preset image suggestions */}
+                                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                                        <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
+                                            Sample:
+                                        </span>
+                                        {[
+                                            { label: "Festival", url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=800" },
+                                            { label: "Cultural", url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" },
+                                            { label: "Craft Fair", url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=800" },
+                                        ].map((p) => (
+                                            <button
+                                                key={p.label}
+                                                type="button"
+                                                onClick={() => {
+                                                    setForm((prev) => ({ ...prev, imageUrl: p.url }));
+                                                    setImageError(false);
+                                                }}
+                                                className="px-2.5 h-6 rounded-full text-[10px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
+                                            >
+                                                {p.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {imageError && (
+                                        <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
+                                            <span>⚠</span> Couldn&apos;t load this image. Check the URL and try again.
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Date */}
@@ -316,7 +425,7 @@ export default function CreateEventPage() {
                                     />
                                 </div>
 
-                                {/* Time Range — two native time pickers */}
+                                {/* Time Range */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <label
@@ -363,7 +472,6 @@ export default function CreateEventPage() {
                                         </div>
                                     </div>
 
-                                    {/* Quick presets */}
                                     <div className="flex flex-wrap items-center gap-2 pt-1">
                                         <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
                                             Quick set:
@@ -390,8 +498,8 @@ export default function CreateEventPage() {
                                 {form.date && form.endTime && (
                                     <div
                                         className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs transition-colors ${autoCompleted
-                                                ? "bg-[#064B38]/5 border-[#064B38]/20 text-[#064B38]"
-                                                : "bg-[#C99A4B]/5 border-[#C99A4B]/25 text-[#65472D]"
+                                            ? "bg-[#064B38]/5 border-[#064B38]/20 text-[#064B38]"
+                                            : "bg-[#C99A4B]/5 border-[#C99A4B]/25 text-[#65472D]"
                                             }`}
                                     >
                                         <span
@@ -429,7 +537,7 @@ export default function CreateEventPage() {
                                     />
                                 </div>
 
-                                {/* Category Selection */}
+                                {/* Category */}
                                 <div className="space-y-2">
                                     <label
                                         htmlFor="category"
@@ -490,7 +598,7 @@ export default function CreateEventPage() {
                                     />
                                 </div>
 
-                                {/* Submit button */}
+                                {/* Submit */}
                                 <div className="pt-2">
                                     <Button
                                         type="submit"

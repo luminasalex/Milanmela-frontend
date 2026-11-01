@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +15,8 @@ export interface EventCardProps {
   description: string;
   categoryColor?: string;
   isCompleted?: boolean;
+  image?: string;
+  imageUrl?: string;
 }
 
 export default function EventCard({
@@ -23,19 +28,33 @@ export default function EventCard({
   description,
   categoryColor = "bg-[#064B38]/10 text-[#064B38]",
   isCompleted = false,
+  image,
+  imageUrl,
 }: EventCardProps) {
+  const rawSrc = (image || imageUrl || "").trim();
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  const displaySrc = failedSrc === rawSrc || !rawSrc ? "/Milanmela.png" : rawSrc;
+  const isExternal =
+    typeof displaySrc === "string" &&
+    (displaySrc.startsWith("http://") ||
+      displaySrc.startsWith("https://") ||
+      displaySrc.startsWith("//"));
+
   return (
     <Card className="group flex flex-col h-full overflow-hidden border border-[#C99A4B]/25 bg-white hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 rounded-2xl p-0">
       {/* Image */}
-      <div className="relative h-52 w-full overflow-hidden">
+      <div className="relative h-52 w-full overflow-hidden bg-[#064B38]/10">
         <Image
-          src="/Milanmela.png"
-          alt={title}
+          src={displaySrc}
+          alt={title || "Event Image"}
           fill
+          unoptimized={isExternal}
+          onError={() => setFailedSrc(rawSrc)}
           className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#064B38]/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#064B38]/70 via-transparent to-transparent pointer-events-none" />
 
         {/* Category badge */}
         <div className="absolute top-3 left-3">
@@ -106,3 +125,4 @@ export default function EventCard({
     </Card>
   );
 }
+
