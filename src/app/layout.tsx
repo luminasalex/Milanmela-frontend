@@ -6,6 +6,7 @@ import {
   Noto_Serif_Bengali,
 } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/home/Navbar";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -58,7 +59,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${notoSerifBengali.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#F7F1E3]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#F7F1E3]">
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
