@@ -69,10 +69,11 @@ export default function Navbar() {
 
           {/* Right: Avatar + Mobile Toggle */}
           <div className="flex items-center gap-3">
-            {/* Profile Avatar */}
-            <button
-              aria-label="User profile"
-              className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md"
+            {/* Profile Avatar / Sign In */}
+            <Link
+              href="/sing-in"
+              aria-label="User sign in or profile"
+              className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer"
             >
               <Avatar size="sm" className="border border-[#C99A4B]/60">
                 <AvatarImage src="" alt="Profile" />
@@ -81,9 +82,9 @@ export default function Navbar() {
                 </AvatarFallback>
               </Avatar>
               <span className="hidden sm:block text-xs font-medium text-[#064B38]">
-                Profile
+                Sign In
               </span>
-            </button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -111,6 +112,22 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <div className="pt-2 flex items-center gap-2">
+              <Link
+                href="/sing-in"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center py-2 text-xs font-semibold rounded-full border border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/sing-up"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center py-2 text-xs font-semibold rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/90 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
           </nav>
         </div>
       )}
