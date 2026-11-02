@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, X, User, LogOut } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 const navLinks = [
   { label: "About", href: "/#about" },
@@ -18,7 +21,24 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
+
+  async function handleSignOut() {
+    try {
+      await authClient.signOut();
+      toast.success("Signed out successfully.");
+      router.push("/sing-in");
+      router.refresh();
+    } catch {
+      toast.error("Failed to sign out. Please try again.");
+    }
+  }
+
+  const userInitial = session?.user?.name
+    ? session.user.name.charAt(0).toUpperCase()
+    : "U";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#C99A4B]/30 bg-[#F7F1E3]/95 backdrop-blur-md">
@@ -69,22 +89,49 @@ export default function Navbar() {
 
           {/* Right: Avatar + Mobile Toggle */}
           <div className="flex items-center gap-3">
-            {/* Profile Avatar / Sign In */}
-            <Link
-              href="/sing-in"
-              aria-label="User sign in or profile"
-              className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer"
-            >
-              <Avatar size="sm" className="border border-[#C99A4B]/60">
-                <AvatarImage src="" alt="Profile" />
-                <AvatarFallback className="bg-[#064B38] text-[#F7F1E3]">
-                  <User className="size-3" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:block text-xs font-medium text-[#064B38]">
-                Sign In
-              </span>
-            </Link>
+            {!isPending && session?.user ? (
+              /* Logged In User State */
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm">
+                  <Avatar size="sm" className="border border-[#C99A4B]/60">
+                    {session.user.image ? (
+                      <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
+                    ) : null}
+                    <AvatarFallback className="bg-[#064B38] text-[#F7F1E3] text-xs font-bold">
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:block text-xs font-medium text-[#064B38] max-w-[120px] truncate">
+                    {session.user.name || session.user.email}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleSignOut}
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                  className="p-2 rounded-full border border-[#C83D2B]/30 text-[#C83D2B] bg-white hover:bg-[#C83D2B] hover:text-white transition-colors cursor-pointer"
+                >
+                  <LogOut className="size-3.5" />
+                </button>
+              </div>
+            ) : (
+              /* Signed Out State */
+              <Link
+                href="/sing-in"
+                aria-label="User sign in"
+                className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer"
+              >
+                <Avatar size="sm" className="border border-[#C99A4B]/60">
+                  <AvatarFallback className="bg-[#064B38] text-[#F7F1E3]">
+                    <User className="size-3" />
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:block text-xs font-medium text-[#064B38]">
+                  Sign In
+                </span>
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -112,22 +159,40 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-2 flex items-center gap-2">
-              <Link
-                href="/sing-in"
-                onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center py-2 text-xs font-semibold rounded-full border border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/sing-up"
-                onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center py-2 text-xs font-semibold rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/90 transition-colors"
-              >
-                Sign Up
-              </Link>
-            </div>
+
+            {session?.user ? (
+              <div className="pt-2 flex items-center justify-between border-t border-[#C99A4B]/20">
+                <span className="text-xs font-semibold text-[#064B38]">
+                  {session.user.name || session.user.email}
+                </span>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleSignOut();
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-full border border-[#C83D2B] text-[#C83D2B] hover:bg-[#C83D2B] hover:text-white transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="pt-2 flex items-center gap-2">
+                <Link
+                  href="/sing-in"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 text-center py-2 text-xs font-semibold rounded-full border border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sing-up"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 text-center py-2 text-xs font-semibold rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/90 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </nav>
         </div>
       )}

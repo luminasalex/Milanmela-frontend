@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -14,9 +15,11 @@ import {
     CheckCircle2,
     Sparkles,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
     Card,
     CardHeader,
@@ -25,9 +28,11 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import { authClient } from "@/lib/auth-client";
 
-// Google Icon Component
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
+
+// Google Icon
 function GoogleIcon({ className = "size-5" }: { className?: string }) {
     return (
         <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -64,51 +69,89 @@ export default function SignUpPage() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // Google Sign Up Handler
+    // Password validation
+    function validatePassword(password: string) {
+        if (password.length < 6) {
+            return "Password must be at least 6 characters long.";
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            return "Password must contain at least one uppercase letter.";
+        }
+
+        if (!/[a-z]/.test(password)) {
+            return "Password must contain at least one lowercase letter.";
+        }
+
+        return null;
+    }
+
+    // Show error
+    function showError(message: string) {
+        setErrorMessage(message);
+        toast.error(message);
+    }
+
+    // Google Sign Up
     async function handleGoogleSignUp() {
         setErrorMessage(null);
         setIsGoogleLoading(true);
+
         try {
-            await authClient.signIn.social({
+            const { error } = await authClient.signIn.social({
                 provider: "google",
                 callbackURL: "/",
             });
+
+            if (error) {
+                showError(error.message || "Failed to sign up with Google.");
+                setIsGoogleLoading(false);
+                return;
+            }
         } catch (err: unknown) {
-            console.error("Google sign up error:", err);
-            const msg =
+            const message =
                 err instanceof Error
                     ? err.message
-                    : "Failed to sign up with Google. Please check your credentials.";
-            setErrorMessage(msg);
+                    : "Failed to sign up with Google.";
+
+            showError(message);
             setIsGoogleLoading(false);
         }
     }
 
-    // Form Submit Handler
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // Form Submit
+    async function handleSubmit(
+        e: React.FormEvent<HTMLFormElement>
+    ) {
         e.preventDefault();
         setErrorMessage(null);
 
-        // Validation
+        // Name validation
         if (!name.trim()) {
-            setErrorMessage("Please enter your full name.");
+            showError("Please enter your full name.");
             return;
         }
 
+        // Email validation
         if (!email.trim()) {
-            setErrorMessage("Please enter a valid email address.");
+            showError("Please enter your email address.");
             return;
         }
 
-        if (password.length < 6) {
-            setErrorMessage("Password must be at least 6 characters long.");
+        // Password validation
+        const passwordError = validatePassword(password);
+
+        if (passwordError) {
+            showError(passwordError);
             return;
         }
 
+        // Confirm password validation
         if (password !== confirmPassword) {
-            setErrorMessage("Passwords do not match. Please verify both fields.");
+            showError("Passwords do not match.");
             return;
         }
 
@@ -123,31 +166,34 @@ export default function SignUpPage() {
             });
 
             if (error) {
-                setErrorMessage(error.message || "Failed to create account. Please try again.");
+                showError(error.message || "Failed to create account.");
                 setIsLoading(false);
                 return;
             }
 
-            // Redirect on success
+            toast.success("Account created successfully!");
+
             router.push("/");
             router.refresh();
+
         } catch (err: unknown) {
-            console.error("Sign up error:", err);
-            const msg =
+            const message =
                 err instanceof Error
                     ? err.message
-                    : "Something went wrong during sign up. Please try again.";
-            setErrorMessage(msg);
+                    : "Something went wrong during registration.";
+
+            showError(message);
             setIsLoading(false);
         }
     }
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative overflow-hidden flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-            {/* Top decorative gradient bar */}
+
+            {/* Top Gradient */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#C99A4B] via-[#064B38] to-[#C83D2B]" />
 
-            {/* Background subtle motif texture */}
+            {/* Background Pattern */}
             <div
                 className="absolute inset-0 pointer-events-none opacity-[0.035]"
                 style={{
@@ -157,7 +203,7 @@ export default function SignUpPage() {
                 }}
             />
 
-            {/* Back link */}
+            {/* Back Link */}
             <div className="relative w-full max-w-md mb-4">
                 <Link
                     href="/"
@@ -168,10 +214,11 @@ export default function SignUpPage() {
                 </Link>
             </div>
 
-            {/* Card Container */}
+            {/* Signup Card */}
             <Card className="relative w-full max-w-md bg-white/90 backdrop-blur-md border border-[#C99A4B]/30 shadow-2xl rounded-3xl p-6 sm:p-8">
+
                 <CardHeader className="p-0 pb-6 text-center">
-                    {/* Header decorative tag */}
+
                     <div className="inline-flex items-center justify-center gap-2 mx-auto mb-2 text-[#C99A4B]">
                         <span className="text-xs">✦</span>
                         <span className="text-[11px] font-bold tracking-widest uppercase">
@@ -186,12 +233,15 @@ export default function SignUpPage() {
                     >
                         Create an Account
                     </CardTitle>
+
                     <CardDescription className="text-xs sm:text-sm text-[#65472D] mt-1">
                         Sign up to discover, attend, and share cultural festivals
                     </CardDescription>
+
                 </CardHeader>
 
                 <CardContent className="p-0 space-y-5">
+
                     {/* Error Banner */}
                     {errorMessage && (
                         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#C83D2B]/10 border border-[#C83D2B]/20 text-[#C83D2B] text-xs">
@@ -200,7 +250,7 @@ export default function SignUpPage() {
                         </div>
                     )}
 
-                    {/* Google Sign Up Button */}
+                    {/* Google Signup */}
                     <Button
                         type="button"
                         variant="outline"
@@ -209,7 +259,9 @@ export default function SignUpPage() {
                         className="w-full h-11 rounded-xl border border-[#C99A4B]/35 bg-white hover:bg-[#F7F1E3]/60 text-[#064B38] font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow cursor-pointer"
                     >
                         <GoogleIcon />
-                        {isGoogleLoading ? "Connecting with Google..." : "Login with Google"}
+                        {isGoogleLoading
+                            ? "Connecting with Google..."
+                            : "Login with Google"}
                     </Button>
 
                     {/* Divider */}
@@ -220,9 +272,10 @@ export default function SignUpPage() {
                         </span>
                     </div>
 
-                    {/* Sign Up Form */}
+                    {/* Signup Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Name Field */}
+
+                        {/* Name */}
                         <div className="space-y-1.5">
                             <Label
                                 htmlFor="name"
@@ -230,14 +283,15 @@ export default function SignUpPage() {
                             >
                                 Full Name
                             </Label>
+
                             <div className="relative">
                                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]/60 pointer-events-none" />
+
                                 <Input
                                     id="name"
                                     type="text"
-                                    name="name"
                                     required
-                                    placeholder="Your Name (e.g. Anisur Rahman)"
+                                    placeholder="Your Name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="pl-10 h-11 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus-visible:ring-[#064B38]/30 focus-visible:border-[#064B38]"
@@ -245,7 +299,7 @@ export default function SignUpPage() {
                             </div>
                         </div>
 
-                        {/* Email Field */}
+                        {/* Email */}
                         <div className="space-y-1.5">
                             <Label
                                 htmlFor="email"
@@ -253,12 +307,13 @@ export default function SignUpPage() {
                             >
                                 Email Address
                             </Label>
+
                             <div className="relative">
                                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]/60 pointer-events-none" />
+
                                 <Input
                                     id="email"
                                     type="email"
-                                    name="email"
                                     required
                                     autoComplete="email"
                                     placeholder="your.email@example.com"
@@ -269,7 +324,7 @@ export default function SignUpPage() {
                             </div>
                         </div>
 
-                        {/* Password Field */}
+                        {/* Password */}
                         <div className="space-y-1.5">
                             <Label
                                 htmlFor="password"
@@ -277,18 +332,21 @@ export default function SignUpPage() {
                             >
                                 Password
                             </Label>
+
                             <div className="relative">
                                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]/60 pointer-events-none" />
+
                                 <Input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
-                                    name="password"
                                     required
+                                    autoComplete="new-password"
                                     placeholder="At least 6 characters"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="pl-10 pr-10 h-11 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus-visible:ring-[#064B38]/30 focus-visible:border-[#064B38]"
                                 />
+
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -302,9 +360,24 @@ export default function SignUpPage() {
                                     )}
                                 </button>
                             </div>
+
+                            {/* Password Requirements */}
+                            <div className="space-y-1 pt-1 text-[11px]">
+                                <p className={password.length >= 6 ? "text-[#064B38]" : "text-[#65472D]/70"}>
+                                    {password.length >= 6 ? "✓" : "○"} At least 6 characters
+                                </p>
+
+                                <p className={/[A-Z]/.test(password) ? "text-[#064B38]" : "text-[#65472D]/70"}>
+                                    {/[A-Z]/.test(password) ? "✓" : "○"} One uppercase letter (A-Z)
+                                </p>
+
+                                <p className={/[a-z]/.test(password) ? "text-[#064B38]" : "text-[#65472D]/70"}>
+                                    {/[a-z]/.test(password) ? "✓" : "○"} One lowercase letter (a-z)
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Confirm Password Field */}
+                        {/* Confirm Password */}
                         <div className="space-y-1.5">
                             <Label
                                 htmlFor="confirmPassword"
@@ -312,22 +385,24 @@ export default function SignUpPage() {
                             >
                                 Confirm Password
                             </Label>
+
                             <div className="relative">
                                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]/60 pointer-events-none" />
+
                                 <Input
                                     id="confirmPassword"
                                     type={showConfirmPassword ? "text" : "password"}
-                                    name="confirmPassword"
                                     required
+                                    autoComplete="new-password"
                                     placeholder="Re-enter your password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className={`pl-10 pr-10 h-11 rounded-xl border ${
-                                        confirmPassword && password !== confirmPassword
+                                    className={`pl-10 pr-10 h-11 rounded-xl border ${confirmPassword && password !== confirmPassword
                                             ? "border-[#C83D2B] focus-visible:ring-[#C83D2B]/30"
                                             : "border-[#C99A4B]/35 focus-visible:ring-[#064B38]/30"
-                                    } bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus-visible:border-[#064B38]`}
+                                        } bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50`}
                                 />
+
                                 <button
                                     type="button"
                                     onClick={() =>
@@ -348,21 +423,21 @@ export default function SignUpPage() {
                                 </button>
                             </div>
 
-                            {/* Live Password Match Indicator */}
                             {confirmPassword && password === confirmPassword && (
                                 <p className="text-[11px] text-[#064B38] font-medium flex items-center gap-1 mt-1">
-                                    <CheckCircle2 className="size-3 text-[#064B38]" />
+                                    <CheckCircle2 className="size-3" />
                                     Passwords match
                                 </p>
                             )}
+
                             {confirmPassword && password !== confirmPassword && (
-                                <p className="text-[11px] text-[#C83D2B] font-medium flex items-center gap-1 mt-1">
-                                    <span>⚠</span> Passwords do not match
+                                <p className="text-[11px] text-[#C83D2B] font-medium mt-1">
+                                    ⚠ Passwords do not match
                                 </p>
                             )}
                         </div>
 
-                        {/* Submit Button */}
+                        {/* Submit */}
                         <Button
                             type="submit"
                             disabled={isLoading || isGoogleLoading}
@@ -370,10 +445,13 @@ export default function SignUpPage() {
                         >
                             {isLoading ? "Creating Account..." : "Sign Up"}
                         </Button>
+
                     </form>
                 </CardContent>
 
+                {/* Footer */}
                 <CardFooter className="p-0 pt-6 mt-6 border-t border-[#C99A4B]/20 flex flex-col gap-2 text-center">
+
                     <p className="text-xs text-[#65472D]">
                         Already have an account?{" "}
                         <Link
@@ -383,10 +461,12 @@ export default function SignUpPage() {
                             Sign in
                         </Link>
                     </p>
+
                     <p className="text-[11px] text-[#65472D]/70 flex items-center justify-center gap-1">
                         <Sparkles className="size-3 text-[#C99A4B]" />
                         Celebrate Bengali culture with Milanmela
                     </p>
+
                 </CardFooter>
             </Card>
         </div>

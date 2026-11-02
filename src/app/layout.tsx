@@ -6,8 +6,10 @@ import {
   Noto_Serif_Bengali,
 } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/home/Footer";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -64,6 +66,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Navbar />
         {children}
         <Footer />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="light"
+        />
       </body>
     </html>
   );

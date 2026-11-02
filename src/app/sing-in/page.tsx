@@ -16,6 +16,7 @@ import {
     CardFooter,
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 // Google Icon Component
 function GoogleIcon({ className = "size-5" }: { className?: string }) {
@@ -51,22 +52,33 @@ export default function SignInPage() {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    function showError(message: string) {
+        setErrorMessage(message);
+        toast.error(message);
+    }
+
     // Google Sign-in Handler
     async function handleGoogleSignIn() {
         setErrorMessage(null);
         setIsGoogleLoading(true);
         try {
-            await authClient.signIn.social({
+            const { error } = await authClient.signIn.social({
                 provider: "google",
                 callbackURL: "/",
             });
+
+            if (error) {
+                showError(error.message || "Failed to sign in with Google.");
+                setIsGoogleLoading(false);
+                return;
+            }
         } catch (err: unknown) {
             console.error("Google sign in error:", err);
             const msg =
                 err instanceof Error
                     ? err.message
                     : "Failed to sign in with Google. Please check your connection.";
-            setErrorMessage(msg);
+            showError(msg);
             setIsGoogleLoading(false);
         }
     }
@@ -76,8 +88,13 @@ export default function SignInPage() {
         e.preventDefault();
         setErrorMessage(null);
 
-        if (!email.trim() || !password) {
-            setErrorMessage("Please enter both email and password.");
+        if (!email.trim()) {
+            showError("Please enter your email address.");
+            return;
+        }
+
+        if (!password) {
+            showError("Please enter your password.");
             return;
         }
 
@@ -91,12 +108,12 @@ export default function SignInPage() {
             });
 
             if (error) {
-                setErrorMessage(error.message || "Invalid email or password.");
+                showError(error.message || "Invalid email or password.");
                 setIsLoading(false);
                 return;
             }
 
-            // Redirect on success
+            toast.success("Welcome back! Signed in successfully.");
             router.push("/");
             router.refresh();
         } catch (err: unknown) {
@@ -105,7 +122,7 @@ export default function SignInPage() {
                 err instanceof Error
                     ? err.message
                     : "Something went wrong during sign in. Please try again.";
-            setErrorMessage(msg);
+            showError(msg);
             setIsLoading(false);
         }
     }
