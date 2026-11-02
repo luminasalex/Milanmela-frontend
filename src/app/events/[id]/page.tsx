@@ -6,7 +6,6 @@ import {
     Clock,
     MapPin,
     Tag,
-    Share2,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -70,16 +69,21 @@ const EventDetailsPage = async ({
 }) => {
     const { id } = await params;
 
-    const res = await fetch(`http://localhost:5000/events/${id}`, {
-        cache: "no-store",
-    });
+    let data: EventItem | null = null;
+    try {
+        const res = await fetch(`http://localhost:5000/events/${id}`, {
+            cache: "no-store",
+        });
 
-    // 404 handle
-    if (!res.ok) {
-        notFound();
+        // Fetch fail korle (event nai / invalid ObjectId / backend down) 404 dekhao
+        if (!res.ok) {
+            console.error("Failed to fetch event:", res.status);
+        } else {
+            data = await res.json();
+        }
+    } catch (error) {
+        console.error("Error fetching event:", error);
     }
-
-    const data: EventItem = await res.json();
 
     if (!data || !data._id) notFound();
 
@@ -88,6 +92,8 @@ const EventDetailsPage = async ({
         CATEGORY_COLORS[category] || "bg-[#064B38]/10 text-[#064B38]";
     const displayImage =
         data.imageUrl || data.image || "/Milanmela.png";
+    const isExternalImage =
+        displayImage.startsWith("http://") || displayImage.startsWith("https://");
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative overflow-hidden">
@@ -186,7 +192,7 @@ const EventDetailsPage = async ({
                     </p>
                 </div>
 
-                {/* CTA footer */}
+                {/* CTA footer — Share button removed */}
                 <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-between bg-[#064B38] rounded-3xl p-6 sm:p-8 text-[#F7F1E3] shadow-xl">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-[#C99A4B] mb-1">
@@ -200,10 +206,6 @@ const EventDetailsPage = async ({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <button className="inline-flex items-center gap-2 rounded-full bg-[#C99A4B] hover:bg-[#C99A4B]/90 text-[#064B38] text-sm font-semibold px-5 py-2.5 transition-colors">
-                            <Share2 className="size-4" />
-                            Share Event
-                        </button>
                         <Link
                             href="/events"
                             className="inline-flex items-center gap-2 rounded-full bg-transparent border border-[#F7F1E3]/30 hover:bg-[#F7F1E3]/10 text-[#F7F1E3] text-sm font-semibold px-5 py-2.5 transition-colors"
