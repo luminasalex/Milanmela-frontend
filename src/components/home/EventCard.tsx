@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { CalendarDays, MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export interface EventCardProps {
+  id?: string;
+  _id?: string;
   title: string;
   date: string;
   time: string;
@@ -20,6 +23,8 @@ export interface EventCardProps {
 }
 
 export default function EventCard({
+  id,
+  _id,
   title,
   date,
   time,
@@ -31,6 +36,7 @@ export default function EventCard({
   image,
   imageUrl,
 }: EventCardProps) {
+  const eventId = id || _id;
   const rawSrc = (image || imageUrl || "").trim();
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
@@ -113,13 +119,25 @@ export default function EventCard({
 
         {/* CTA */}
         <div className="pt-1">
-          <Button
-            variant="outline"
-            className="w-full h-9 rounded-full border-[#064B38] text-[#064B38] text-xs font-semibold hover:bg-[#064B38] hover:text-[#F7F1E3] transition-all"
-          >
-            {isCompleted ? "View Highlights" : "View Details"}
-            <ArrowRight className="size-3.5 ml-1" />
-          </Button>
+          {eventId ? (
+            <Link href={`/events/${eventId}`} className="block w-full">
+              <Button
+                variant="outline"
+                className="w-full h-9 rounded-full border-[#064B38] text-[#064B38] text-xs font-semibold hover:bg-[#064B38] hover:text-[#F7F1E3] transition-all cursor-pointer"
+              >
+                {isCompleted ? "View Highlights" : "View Details"}
+                <ArrowRight className="size-3.5 ml-1" />
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full h-9 rounded-full border-[#064B38] text-[#064B38] text-xs font-semibold hover:bg-[#064B38] hover:text-[#F7F1E3] transition-all"
+            >
+              {isCompleted ? "View Highlights" : "View Details"}
+              <ArrowRight className="size-3.5 ml-1" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

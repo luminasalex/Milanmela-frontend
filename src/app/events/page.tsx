@@ -2,101 +2,28 @@ import Link from "next/link";
 import { PlusCircle, Calendar, Sparkles } from "lucide-react";
 import EventCard from "@/components/home/EventCard";
 import { Button } from "@/components/ui/button";
-
-interface EventItem {
-    _id: string;
-    title: string;
-    date?: string;
-    startTime?: string;
-    endTime?: string;
-    time?: string;
-    location?: string;
-    category?: string;
-    description?: string;
-    imageUrl?: string;
-    image?: string;
-    isCompleted?: boolean;
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-    Festival: "bg-[#C83D2B]/90 text-white",
-    Cultural: "bg-[#064B38]/90 text-white",
-    Heritage: "bg-[#C99A4B] text-[#064B38]",
-    Music: "bg-[#064B38]/90 text-white",
-    Community: "bg-[#C83D2B]/90 text-white",
-    Other: "bg-[#064B38]/10 text-[#064B38]",
-};
-
-function formatDate(raw?: string): string {
-    if (!raw) return "Date TBD";
-    const d = new Date(raw);
-    if (isNaN(d.getTime())) return raw;
-    return d.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-    });
-}
-
-function formatTime12(hhmm?: string): string {
-    if (!hhmm || !hhmm.includes(":")) return hhmm || "";
-    const [h, m] = hhmm.split(":");
-    const hour = parseInt(h, 10);
-    if (isNaN(hour)) return hhmm;
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m} ${ampm}`;
-}
-
-function formatTimeRange(start?: string, end?: string, fallback?: string): string {
-    if (fallback && fallback.trim()) return fallback;
-    const s = formatTime12(start);
-    const e = formatTime12(end);
-    if (s && e) return `${s} – ${e}`;
-    return s || e || "Time TBD";
-}
-
-function isCompletedEvent(date?: string, endTime?: string, isCompletedFlag?: boolean): boolean {
-    if (typeof isCompletedFlag === "boolean") return isCompletedFlag;
-    if (!date) return false;
-    const eventDate = new Date(date);
-    if (isNaN(eventDate.getTime())) return false;
-
-    let endHour = 23;
-    let endMinute = 59;
-    if (endTime && endTime.includes(":")) {
-        const [h, m] = endTime.split(":");
-        const hour = parseInt(h, 10);
-        const minute = parseInt(m, 10);
-        if (!isNaN(hour)) endHour = hour;
-        if (!isNaN(minute)) endMinute = minute;
-    }
-    const endDateTime = new Date(eventDate);
-    endDateTime.setHours(endHour, endMinute, 0, 0);
-    return endDateTime.getTime() < Date.now();
-}
-
-// ami code korlam but Ai code change kore deca 
-
-async function getEvents(): Promise<EventItem[]> {
-    try {
-        const res = await fetch("http://localhost:5000/all-events", {
-            cache: "no-store",
-        });
-        if (!res.ok) {
-            console.error("Failed to fetch events:", res.status);
-            return [];
-        }
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-    } catch (error) {
-        console.error("Error fetching all events:", error);
-        return [];
-    }
-}
+import {
+    CATEGORY_COLORS,
+    formatDate,
+    formatTimeRange,
+    isCompletedEvent,
+    sortEventsByDate,
+} from "@/lib/events";
 
 export default async function AllEventsPage() {
-    const events = await getEvents();
+    // 1. Backend theke shorasori data fetch kora (Beginner-friendly way)
+    let rawEvents = [];
+    try {
+        const res = await fetch("http://localhost:5000/events", {
+            cache: "no-store", // notun event add korle jate sathe sathe update dekha jay
+        });
+        rawEvents = await res.json();
+    } catch (error) {
+        console.error("Events fetch korte problem hoyeche:", error);
+    }
+
+    // 2. Events gulo date onujayi sort kora
+    const events = sortEventsByDate(rawEvents);
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative overflow-hidden py-12 lg:py-20">
@@ -175,7 +102,7 @@ export default async function AllEventsPage() {
                                 Showing {events.length} {events.length === 1 ? "Event" : "Events"}
                             </span>
                             <span className="text-[11px] text-[#65472D]/70 font-medium">
-                                Live from MongoDB
+                                Sorted by date (upcoming first)
                             </span>
                         </div>
 
@@ -192,6 +119,8 @@ export default async function AllEventsPage() {
                                 return (
                                     <div key={event._id} className="h-full">
                                         <EventCard
+                                            id={event._id}
+                                            _id={event._id}
                                             title={event.title || "Untitled Event"}
                                             date={formatDate(event.date)}
                                             time={formatTimeRange(event.startTime, event.endTime, event.time)}

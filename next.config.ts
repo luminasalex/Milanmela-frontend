@@ -3,7 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
-    remotePatterns: [new URL("https://images.unsplash.com/**")],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**", // 👈 sob domain allow
+      },
+      {
+        protocol: "http",
+        hostname: "**", // 👈 http o allow (localhost etc.)
+      },
+    ],
   },
   turbopack: {
     rules: {

@@ -1,44 +1,69 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EventCard from "./EventCard";
+import EventCard, { type EventCardProps } from "./EventCard";
+import Link from "next/link";
+import {
+  type EventItem,
+  CATEGORY_COLORS,
+  formatDate,
+  formatTimeRange,
+  isCompletedEvent,
+  sortEventsByDate,
+} from "@/lib/events";
 
-const upcomingEvents = [
-  {
-    title: "Baishakhi Mela 2025",
-    date: "April 14, 2025",
-    time: "10:00 AM – 8:00 PM",
-    location: "Ramna Park, Dhaka",
-    category: "Festival",
-    categoryColor: "bg-[#C83D2B]/90 text-white",
+const TOP_EVENTS = 6;
+
+function toCardProps(event: EventItem): EventCardProps {
+  const category = event.category || "Festival";
+  const displayImage = event.imageUrl || event.image || "/Milanmela.png";
+
+  return {
+    id: event._id,
+    _id: event._id,
+    title: event.title || "Untitled Event",
+    date: formatDate(event.date),
+    time: formatTimeRange(event.startTime, event.endTime, event.time),
+    location: event.location || "Location TBD",
+    category,
+    categoryColor:
+      CATEGORY_COLORS[category] || "bg-[#064B38]/10 text-[#064B38]",
     description:
-      "Celebrate the Bengali New Year with vibrant folk music, traditional dance performances, artisan crafts, and authentic Bengali cuisine in the heart of Dhaka.",
-  },
-  {
-    title: "Rabindra Jayanti Evening",
-    date: "May 8, 2025",
-    time: "6:00 PM – 10:00 PM",
-    location: "Bangladesh Shilpakala Academy",
-    category: "Cultural",
-    categoryColor: "bg-[#064B38]/90 text-white",
-    description:
-      "An elegant cultural evening dedicated to Rabindranath Tagore — featuring classical songs, readings, and theatrical performances by celebrated artists.",
-  },
-  {
-    title: "Nakshi Kantha Craft Fair",
-    date: "June 20, 2025",
-    time: "11:00 AM – 7:00 PM",
-    location: "Bashundhara City, Dhaka",
-    category: "Heritage",
-    categoryColor: "bg-[#C99A4B] text-[#064B38]",
-    description:
-      "Discover the artistry of Nakshi Kantha embroidery and traditional Bengali crafts from across the country, celebrating artisans and their living heritage.",
-  },
-];
+      event.description || "No description provided for this event.",
+    isCompleted: isCompletedEvent(event.date, event.endTime, event.isCompleted),
+    image: displayImage,
+    imageUrl: displayImage,
+  };
+}
 
 export default function UpcomingEvents() {
+  const [events, setEvents] = useState<EventCardProps[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("http://localhost:5000/events")
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        const validData = Array.isArray(data) ? data : [];
+        setEvents(sortEventsByDate(validData).slice(0, TOP_EVENTS).map(toCardProps));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching events:", err);
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <section
       id="upcoming-events"
@@ -82,7 +107,7 @@ export default function UpcomingEvents() {
             </motion.p>
           </div>
 
-          <a href="#" className="shrink-0">
+          <Link href="/events" className="shrink-0">
             <Button
               variant="outline"
               className="h-10 px-6 rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] text-sm font-semibold transition-all"
@@ -90,29 +115,49 @@ export default function UpcomingEvents() {
               View All Events
               <ArrowRight className="size-4 ml-1" />
             </Button>
-          </a>
+          </Link>
         </div>
 
         {/* Events grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
-        >
-          {upcomingEvents.map((event, i) => (
-            <motion.div
-              key={event.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: i * 0.1 }}
-            >
-              <EventCard {...event} />
-            </motion.div>
-          ))}
-        </motion.div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-96 rounded-2xl border border-[#C99A4B]/25 bg-white animate-pulse"
+              />
+            ))}
+          </div>
+        ) : events.length === 0 ? (
+          <div className="bg-white/80 rounded-3xl border border-[#C99A4B]/25 p-10 text-center max-w-lg mx-auto">
+            <div className="w-14 h-14 rounded-full bg-[#064B38]/10 text-[#064B38] flex items-center justify-center mx-auto mb-4">
+              <Calendar className="size-7" />
+            </div>
+            <p className="text-sm text-[#65472D]">
+              No events published yet — check back soon!
+            </p>
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
+          >
+            {events.map((event, i) => (
+              <motion.div
+                key={`${event.title}-${i}`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, delay: i * 0.1 }}
+              >
+                <EventCard {...event} />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </section>
   );
