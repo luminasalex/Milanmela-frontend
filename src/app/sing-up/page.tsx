@@ -14,6 +14,7 @@ import {
     AlertCircle,
     CheckCircle2,
     Sparkles,
+    ImageIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,7 @@ export default function SignUpPage() {
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [image, setImage] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -162,6 +164,7 @@ export default function SignUpPage() {
                 name: name.trim(),
                 email: email.trim(),
                 password,
+                image: image.trim() || undefined,
                 callbackURL: "/",
             });
 
@@ -173,8 +176,8 @@ export default function SignUpPage() {
 
             toast.success("Account created successfully!");
 
-            router.push("/");
-            router.refresh();
+            // Full reload ensures Navbar and useSession pick up the new user & avatar immediately
+            window.location.href = "/";
 
         } catch (err: unknown) {
             const message =
@@ -322,6 +325,55 @@ export default function SignUpPage() {
                                     className="pl-10 h-11 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus-visible:ring-[#064B38]/30 focus-visible:border-[#064B38]"
                                 />
                             </div>
+                        </div>
+
+                        {/* Profile Image (Avatar Link) */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                                <Label
+                                    htmlFor="image"
+                                    className="text-xs font-semibold text-[#064B38]"
+                                >
+                                    Profile Image URL (Avatar)
+                                </Label>
+                                <span className="text-[10px] text-[#65472D]/60 font-medium">
+                                    Optional
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="relative flex-1">
+                                    <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]/60 pointer-events-none" />
+                                    <Input
+                                        id="image"
+                                        type="url"
+                                        placeholder="https://images.unsplash.com/... or any image link"
+                                        value={image}
+                                        onChange={(e) => setImage(e.target.value)}
+                                        className="pl-10 h-11 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/40 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus-visible:ring-[#064B38]/30 focus-visible:border-[#064B38]"
+                                    />
+                                </div>
+
+                                {/* Live Avatar Preview */}
+                                <div className="size-11 shrink-0 rounded-full border-2 border-[#C99A4B]/50 overflow-hidden bg-white shadow-sm flex items-center justify-center">
+                                    {image.trim() ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={image}
+                                            alt="Preview"
+                                            className="size-full object-cover"
+                                            onError={(e) => {
+                                                (e.target as HTMLElement).style.display = "none";
+                                            }}
+                                        />
+                                    ) : (
+                                        <User className="size-5 text-[#064B38]/40" />
+                                    )}
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-[#65472D]/70">
+                                Direct image URL (JPG, PNG, WebP) to display as your profile avatar.
+                            </p>
                         </div>
 
                         {/* Password */}

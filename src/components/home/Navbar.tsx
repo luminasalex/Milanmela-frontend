@@ -3,12 +3,28 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Menu, X, User, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
+  ChevronDown,
+  Calendar,
+  PlusCircle,
+  Sparkles,
+} from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 
@@ -90,31 +106,103 @@ export default function Navbar() {
           {/* Right: Avatar + Mobile Toggle */}
           <div className="flex items-center gap-3">
             {!isPending && session?.user ? (
-              /* Logged In User State */
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm">
-                  <Avatar size="sm" className="border border-[#C99A4B]/60">
-                    {session.user.image ? (
-                      <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
-                    ) : null}
-                    <AvatarFallback className="bg-[#064B38] text-[#F7F1E3] text-xs font-bold">
-                      {userInitial}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden sm:block text-xs font-medium text-[#064B38] max-w-[120px] truncate">
-                    {session.user.name || session.user.email}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleSignOut}
-                  title="Sign Out"
-                  aria-label="Sign Out"
-                  className="p-2 rounded-full border border-[#C83D2B]/30 text-[#C83D2B] bg-white hover:bg-[#C83D2B] hover:text-white transition-colors cursor-pointer"
+              /* Logged In User State with Dropdown Menu */
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white pl-1.5 pr-2.5 py-1 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#064B38]/30"
+                  aria-label="Open user profile menu"
                 >
-                  <LogOut className="size-3.5" />
-                </button>
-              </div>
+                  <div className="relative size-7 shrink-0 rounded-full border border-[#C99A4B]/60 overflow-hidden bg-[#064B38] flex items-center justify-center">
+                    {session.user.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        className="size-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[#F7F1E3] text-xs font-bold">
+                        {userInitial}
+                      </span>
+                    )}
+                  </div>
+                  <span className="hidden sm:block text-xs font-semibold text-[#064B38] max-w-[110px] truncate">
+                    {session.user.name || "Account"}
+                  </span>
+                  <ChevronDown className="size-3 text-[#65472D]/70" />
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-64 p-2 bg-white/95 backdrop-blur-md border border-[#C99A4B]/35 shadow-2xl rounded-2xl"
+                >
+                  {/* User Profile Details Header */}
+                  <div className="flex items-center gap-3 p-3 bg-[#F7F1E3]/60 rounded-xl border border-[#C99A4B]/20 mb-1">
+                    <div className="relative size-11 shrink-0 rounded-full border-2 border-[#C99A4B]/60 overflow-hidden bg-[#064B38] flex items-center justify-center shadow-sm">
+                      {session.user.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={session.user.image}
+                          alt={session.user.name || "User"}
+                          className="size-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <span className="text-[#F7F1E3] text-sm font-bold">
+                          {userInitial}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#064B38] truncate leading-tight">
+                        {session.user.name || "Cultural Member"}
+                      </p>
+                      <p className="text-[11px] text-[#65472D] truncate mt-0.5">
+                        {session.user.email}
+                      </p>
+                      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#C99A4B] uppercase tracking-wider mt-1">
+                        <Sparkles className="size-2.5" /> Milanmela Member
+                      </span>
+                    </div>
+                  </div>
+
+                  <DropdownMenuSeparator className="bg-[#C99A4B]/20 my-1" />
+
+                  {/* Quick links */}
+                  <DropdownMenuItem className="cursor-pointer rounded-lg px-2.5 py-2 text-xs font-semibold text-[#064B38] hover:bg-[#064B38]/10 transition-colors">
+                    <Link href="/create-event" className="flex items-center gap-2.5 w-full">
+                      <PlusCircle className="size-4 text-[#C99A4B]" />
+                      <span>Create Event</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem className="cursor-pointer rounded-lg px-2.5 py-2 text-xs font-semibold text-[#064B38] hover:bg-[#064B38]/10 transition-colors">
+                    <Link href="/events" className="flex items-center gap-2.5 w-full">
+                      <Calendar className="size-4 text-[#064B38]" />
+                      <span>All Events Schedule</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="bg-[#C99A4B]/20 my-1" />
+
+                  {/* Sign Out Action inside Dropdown */}
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer rounded-lg px-2.5 py-2 text-xs font-semibold text-[#C83D2B] hover:bg-[#C83D2B]/10 hover:text-[#C83D2B] focus:bg-[#C83D2B]/10 focus:text-[#C83D2B] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 w-full">
+                      <LogOut className="size-4" />
+                      <span>Sign Out</span>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               /* Signed Out State */
               <Link
@@ -162,9 +250,28 @@ export default function Navbar() {
 
             {session?.user ? (
               <div className="pt-2 flex items-center justify-between border-t border-[#C99A4B]/20">
-                <span className="text-xs font-semibold text-[#064B38]">
-                  {session.user.name || session.user.email}
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="relative size-7 shrink-0 rounded-full border border-[#C99A4B]/60 overflow-hidden bg-[#064B38] flex items-center justify-center">
+                    {session.user.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        className="size-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[#F7F1E3] text-xs font-bold">
+                        {userInitial}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-[#064B38] max-w-[150px] truncate">
+                    {session.user.name || session.user.email}
+                  </span>
+                </div>
                 <button
                   onClick={() => {
                     setMobileOpen(false);
