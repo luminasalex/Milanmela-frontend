@@ -113,6 +113,25 @@ function isEventCompleted(date: string, endTime: string): boolean {
     return endDateTime.getTime() < Date.now();
 }
 
+// 👈 NEW: Ajker date ke "YYYY-MM-DD" format e return kore (local time)
+function getTodayISO(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+// 👈 NEW: Date ta past kina check kore
+function isPastDate(dateStr: string): boolean {
+    if (!dateStr) return false;
+    const selected = new Date(dateStr);
+    if (isNaN(selected.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selected < today;
+}
+
 // Async helper: validate that an image URL actually loads (with 2.5s timeout)
 async function validateImageUrl(url: string): Promise<boolean> {
     if (!url) return true;
@@ -167,6 +186,7 @@ export default function CreateEventPage() {
 
     const previewImage = form.imageUrl?.trim() || DEFAULT_IMAGE;
 
+    // 👈 NEW: past date hole form invalid
     const isFormValid =
         form.title.trim() !== "" &&
         form.date.trim() !== "" &&
@@ -174,7 +194,8 @@ export default function CreateEventPage() {
         form.endTime.trim() !== "" &&
         form.location.trim() !== "" &&
         form.category.trim() !== "" &&
-        form.description.trim() !== "";
+        form.description.trim() !== "" &&
+        !isPastDate(form.date);
 
     function handleChange(
         e: React.ChangeEvent<
@@ -203,6 +224,14 @@ export default function CreateEventPage() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!isFormValid || isSubmitting) return;
+
+        // 👈 NEW: Past date safety check (browser bypass thakleo block korbe)
+        if (isPastDate(form.date)) {
+            setSubmitError(
+                "You cannot create an event in the past. Please select today or a future date."
+            );
+            return;
+        }
 
         setIsSubmitting(true);
         setSubmitError(null);
@@ -505,10 +534,17 @@ export default function CreateEventPage() {
                                         name="date"
                                         type="date"
                                         required
+                                        min={getTodayISO()}   /* 👈 NEW: past date block */
                                         value={form.date ?? ""}
                                         onChange={handleChange}
                                         className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
                                     />
+                                    {/* 👈 NEW: Past date inline warning */}
+                                    {form.date && isPastDate(form.date) && (
+                                        <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
+                                            <span>⚠</span> Past date is not allowed. Please select today or a future date.
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Time Range */}
