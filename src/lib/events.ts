@@ -10,6 +10,7 @@ export interface EventItem {
   description?: string;
   imageUrl?: string;
   image?: string;
+  creatorEmail?: string;
   isCompleted?: boolean;
 }
 
