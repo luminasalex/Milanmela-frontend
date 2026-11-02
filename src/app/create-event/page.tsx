@@ -20,6 +20,8 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import EventCard from "@/components/home/EventCard";
+import { useSession } from "@/lib/auth-client";
+import { log } from "console";
 
 const CATEGORIES = [
     { label: "Festival", value: "Festival" },
@@ -155,13 +157,16 @@ async function validateImageUrl(url: string): Promise<boolean> {
     });
 }
 
-async function saveEvent(data: EventFormData) {
+async function saveEvent(data: EventFormData, creatorEmail?: string) {
     const res = await fetch("http://localhost:5000/create-event", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            ...data,
+            creatorEmail: creatorEmail || "",
+        }),
     });
 
     if (!res.ok) {
@@ -178,6 +183,15 @@ export default function CreateEventPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+
+
+    const { data: session, isPending } = useSession();
+    const { user } = session || {}
+
+    // console.log("session", session);
+    // console.log("user", user);
+
+
 
     const autoCompleted = useMemo(
         () => isEventCompleted(form.date, form.endTime),
@@ -246,8 +260,8 @@ export default function CreateEventPage() {
                 }
             }
 
-            // Save event to database
-            await saveEvent(form);
+            // Save event to database with logged-in user email
+            await saveEvent(form, user?.email);
 
             setSubmitted(true);
         } catch (err) {
