@@ -9,7 +9,6 @@ import {
     Tag,
     AlignLeft,
     Sparkles,
-    CheckCircle2,
     ChevronDown,
     Palette,
     ArrowLeft,
@@ -18,10 +17,11 @@ import {
     X,
 } from "lucide-react";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // react-toastify v11 hole ei line lagbe na
 import { Button } from "@/components/ui/button";
 import EventCard from "@/components/home/EventCard";
 import { useSession } from "@/lib/auth-client";
-import { log } from "console";
 
 const CATEGORIES = [
     { label: "Festival", value: "Festival" },
@@ -115,7 +115,7 @@ function isEventCompleted(date: string, endTime: string): boolean {
     return endDateTime.getTime() < Date.now();
 }
 
-// 👈 NEW: Ajker date ke "YYYY-MM-DD" format e return kore (local time)
+// Ajker date "YYYY-MM-DD" format e return kore (local time)
 function getTodayISO(): string {
     const today = new Date();
     const year = today.getFullYear();
@@ -124,7 +124,7 @@ function getTodayISO(): string {
     return `${year}-${month}-${day}`;
 }
 
-// 👈 NEW: Date ta past kina check kore
+// Date ta past kina check kore
 function isPastDate(dateStr: string): boolean {
     if (!dateStr) return false;
     const selected = new Date(dateStr);
@@ -179,19 +179,12 @@ async function saveEvent(data: EventFormData, creatorEmail?: string) {
 
 export default function CreateEventPage() {
     const [form, setForm] = useState<EventFormData>(initialForm);
-    const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-
-    const { data: session, isPending } = useSession();
-    const { user } = session || {}
-
-    // console.log("session", session);
-    // console.log("user", user);
-
-
+    const { data: session } = useSession();
+    const { user } = session || {};
 
     const autoCompleted = useMemo(
         () => isEventCompleted(form.date, form.endTime),
@@ -200,7 +193,7 @@ export default function CreateEventPage() {
 
     const previewImage = form.imageUrl?.trim() || DEFAULT_IMAGE;
 
-    // 👈 NEW: past date hole form invalid
+    // past date hole form invalid
     const isFormValid =
         form.title.trim() !== "" &&
         form.date.trim() !== "" &&
@@ -239,11 +232,12 @@ export default function CreateEventPage() {
         e.preventDefault();
         if (!isFormValid || isSubmitting) return;
 
-        // 👈 NEW: Past date safety check (browser bypass thakleo block korbe)
+        // Past date safety check
         if (isPastDate(form.date)) {
-            setSubmitError(
-                "You cannot create an event in the past. Please select today or a future date."
-            );
+            const msg =
+                "You cannot create an event in the past. Please select today or a future date.";
+            setSubmitError(msg);
+            toast.error(msg);
             return;
         }
 
@@ -251,7 +245,7 @@ export default function CreateEventPage() {
         setSubmitError(null);
 
         try {
-            // Validate image URL before submitting (non-blocking with timeout)
+            // Validate image URL before submitting
             if (form.imageUrl.trim()) {
                 const imageOk = await validateImageUrl(form.imageUrl.trim());
                 if (!imageOk) {
@@ -263,21 +257,17 @@ export default function CreateEventPage() {
             // Save event to database with logged-in user email
             await saveEvent(form, user?.email);
 
-            setSubmitted(true);
+            toast.success("Event created successfully! 🎉");
+            setForm(initialForm); // form reset
+            setImageError(false);
         } catch (err) {
             const message =
                 err instanceof Error ? err.message : "Something went wrong.";
             setSubmitError(message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
-    }
-
-    function handleReset() {
-        setForm(initialForm);
-        setSubmitted(false);
-        setImageError(false);
-        setSubmitError(null);
     }
 
     const previewCardProps = {
@@ -296,6 +286,8 @@ export default function CreateEventPage() {
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative overflow-hidden py-12 lg:py-20">
+            <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+
             {/* Top decorative gradient bar */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#C99A4B] via-[#064B38] to-[#C83D2B]" />
 
@@ -354,451 +346,396 @@ export default function CreateEventPage() {
                     </motion.p>
                 </div>
 
-                {submitted ? (
-                    /* Submission Success State */
+                {/* Main Two-Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                    {/* Form Column */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="max-w-xl mx-auto bg-white rounded-3xl border border-[#C99A4B]/30 shadow-xl p-8 sm:p-10 text-center"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="lg:col-span-7 bg-white rounded-3xl border border-[#C99A4B]/25 shadow-xl p-6 sm:p-8 md:p-10"
                     >
-                        <div className="w-16 h-16 rounded-full bg-[#064B38]/10 text-[#064B38] flex items-center justify-center mx-auto mb-5">
-                            <CheckCircle2 className="size-8" />
-                        </div>
-                        <h2
-                            className="text-2xl sm:text-3xl font-bold text-[#064B38] mb-2"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                        >
-                            Event Successfully Created!
-                        </h2>
-                        <p className="text-sm text-[#65472D] mb-8">
-                            &ldquo;{form.title}&rdquo; has been registered with all card
-                            details configured.
-                        </p>
-
-                        <div className="max-w-sm mx-auto mb-8 text-left">
-                            <EventCard {...previewCardProps} />
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Button
-                                type="button"
-                                onClick={handleReset}
-                                className="rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/85 px-6"
-                            >
-                                Create Another
-                            </Button>
-                            <Link href="/all-events">
-                                <Button
-                                    type="button"
-                                    className="w-full sm:w-auto rounded-full bg-[#C99A4B] text-[#064B38] hover:bg-[#C99A4B]/90 font-semibold px-6"
+                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                            {/* Event Title */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="title"
+                                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
                                 >
-                                    View All Events
-                                </Button>
-                            </Link>
-                            <Link href="/">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full sm:w-auto rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] px-6"
-                                >
-                                    Home
-                                </Button>
-                            </Link>
-                        </div>
-                    </motion.div>
-                ) : (
-                    /* Main Two-Column Layout */
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-                        {/* Form Column */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="lg:col-span-7 bg-white rounded-3xl border border-[#C99A4B]/25 shadow-xl p-6 sm:p-8 md:p-10"
-                        >
-                            <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                                {/* Event Title */}
-                                <div className="space-y-2">
+                                    <Sparkles className="size-3.5 text-[#C99A4B]" />
+                                    Event Title <span className="text-[#C83D2B]">*</span>
+                                </label>
+                                <input
+                                    id="title"
+                                    name="title"
+                                    type="text"
+                                    required
+                                    value={form.title ?? ""}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Poila Boishakh Grand Celebration"
+                                    className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                />
+                            </div>
+
+                            {/* Cover Image by URL only */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
                                     <label
-                                        htmlFor="title"
+                                        htmlFor="imageUrl"
                                         className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
                                     >
-                                        <Sparkles className="size-3.5 text-[#C99A4B]" />
-                                        Event Title <span className="text-[#C83D2B]">*</span>
+                                        <ImageIcon className="size-3.5 text-[#C99A4B]" />
+                                        Cover Image URL
                                     </label>
-                                    <input
-                                        id="title"
-                                        name="title"
-                                        type="text"
-                                        required
-                                        value={form.title ?? ""}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Poila Boishakh Grand Celebration"
-                                        className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                    />
+                                    <span className="text-[10px] lowercase text-[#65472D]/60">
+                                        paste a public image link
+                                    </span>
                                 </div>
 
-                                {/* Cover Image by URL only */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <label
-                                            htmlFor="imageUrl"
-                                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
-                                        >
-                                            <ImageIcon className="size-3.5 text-[#C99A4B]" />
-                                            Cover Image URL
-                                        </label>
-                                        <span className="text-[10px] lowercase text-[#65472D]/60">
-                                            paste a public image link
-                                        </span>
+                                <div className="flex items-stretch gap-3">
+                                    {/* Thumbnail preview */}
+                                    <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border border-[#C99A4B]/35 bg-[#F7F1E3]/60">
+                                        {previewImage && !imageError ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={previewImage}
+                                                alt="Cover preview"
+                                                className="w-full h-full object-cover"
+                                                onError={() => setImageError(true)}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-[#C99A4B]">
+                                                <ImageIcon className="size-6" />
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="flex items-stretch gap-3">
-                                        {/* Thumbnail preview */}
-                                        <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border border-[#C99A4B]/35 bg-[#F7F1E3]/60">
-                                            {previewImage && !imageError ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={previewImage}
-                                                    alt="Cover preview"
-                                                    className="w-full h-full object-cover"
-                                                    onError={() => setImageError(true)}
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-[#C99A4B]">
-                                                    <ImageIcon className="size-6" />
-                                                </div>
+                                    {/* URL input */}
+                                    <div className="flex-1">
+                                        <div className="relative">
+                                            <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#C99A4B] pointer-events-none" />
+                                            <input
+                                                id="imageUrl"
+                                                name="imageUrl"
+                                                type="url"
+                                                value={form.imageUrl ?? ""}
+                                                onChange={handleChange}
+                                                placeholder="https://example.com/event-image.jpg"
+                                                className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                            />
+                                            {form.imageUrl && (
+                                                <button
+                                                    type="button"
+                                                    onClick={clearImage}
+                                                    aria-label="Clear image"
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 size-7 rounded-full flex items-center justify-center text-[#65472D]/70 hover:bg-[#C83D2B]/10 hover:text-[#C83D2B] transition-colors"
+                                                >
+                                                    <X className="size-4" />
+                                                </button>
                                             )}
                                         </div>
-
-                                        {/* URL input */}
-                                        <div className="flex-1">
-                                            <div className="relative">
-                                                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#C99A4B] pointer-events-none" />
-                                                <input
-                                                    id="imageUrl"
-                                                    name="imageUrl"
-                                                    type="url"
-                                                    value={form.imageUrl ?? ""}
-                                                    onChange={handleChange}
-                                                    placeholder="https://example.com/event-image.jpg"
-                                                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                                />
-                                                {form.imageUrl && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={clearImage}
-                                                        aria-label="Clear image"
-                                                        className="absolute right-2 top-1/2 -translate-y-1/2 size-7 rounded-full flex items-center justify-center text-[#65472D]/70 hover:bg-[#C83D2B]/10 hover:text-[#C83D2B] transition-colors"
-                                                    >
-                                                        <X className="size-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <p className="mt-1.5 text-[10px] text-[#65472D]/60">
-                                                Leave empty to use the default Milanmela image.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Preset image suggestions */}
-                                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                                        <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
-                                            Sample:
-                                        </span>
-                                        {[
-                                            { label: "Festival", url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=800" },
-                                            { label: "Cultural", url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" },
-                                            { label: "Craft Fair", url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=800" },
-                                        ].map((p) => (
-                                            <button
-                                                key={p.label}
-                                                type="button"
-                                                onClick={async () => {
-                                                    setForm((prev) => ({ ...prev, imageUrl: p.url }));
-                                                    setImageError(false);
-                                                    const ok = await validateImageUrl(p.url);
-                                                    if (!ok) setImageError(true);
-                                                }}
-                                                className="px-2.5 h-6 rounded-full text-[10px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
-                                            >
-                                                {p.label}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    {imageError && (
-                                        <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
-                                            <span>⚠</span> Couldn&apos;t load this image. Check the URL and try again.
+                                        <p className="mt-1.5 text-[10px] text-[#65472D]/60">
+                                            Leave empty to use the default Milanmela image.
                                         </p>
-                                    )}
+                                    </div>
                                 </div>
 
-                                {/* Date */}
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="date"
-                                        className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
-                                    >
-                                        <CalendarDays className="size-3.5 text-[#C99A4B]" />
-                                        Event Date <span className="text-[#C83D2B]">*</span>
-                                    </label>
-                                    <input
-                                        id="date"
-                                        name="date"
-                                        type="date"
-                                        required
-                                        min={getTodayISO()}   /* 👈 NEW: past date block */
-                                        value={form.date ?? ""}
-                                        onChange={handleChange}
-                                        className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                    />
-                                    {/* 👈 NEW: Past date inline warning */}
-                                    {form.date && isPastDate(form.date) && (
-                                        <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
-                                            <span>⚠</span> Past date is not allowed. Please select today or a future date.
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Time Range */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <label
-                                            htmlFor="startTime"
-                                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                {/* Preset image suggestions */}
+                                <div className="flex flex-wrap items-center gap-2 pt-1">
+                                    <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
+                                        Sample:
+                                    </span>
+                                    {[
+                                        { label: "Festival", url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=800" },
+                                        { label: "Cultural", url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" },
+                                        { label: "Craft Fair", url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=800" },
+                                    ].map((p) => (
+                                        <button
+                                            key={p.label}
+                                            type="button"
+                                            onClick={async () => {
+                                                setForm((prev) => ({ ...prev, imageUrl: p.url }));
+                                                setImageError(false);
+                                                const ok = await validateImageUrl(p.url);
+                                                if (!ok) setImageError(true);
+                                            }}
+                                            className="px-2.5 h-6 rounded-full text-[10px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
                                         >
-                                            <Clock className="size-3.5 text-[#C99A4B]" />
-                                            Event Time <span className="text-[#C83D2B]">*</span>
-                                        </label>
-                                        <span className="text-[11px] text-[#65472D]/60">
-                                            {formatTimeRange(form.startTime ?? "", form.endTime ?? "") ||
-                                                "start – end"}
-                                        </span>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-1">
-                                            <span className="text-[10px] uppercase tracking-wider text-[#65472D]/70 font-semibold">
-                                                Start
-                                            </span>
-                                            <input
-                                                id="startTime"
-                                                name="startTime"
-                                                type="time"
-                                                required
-                                                value={form.startTime ?? ""}
-                                                onChange={handleChange}
-                                                className="w-full h-11 px-3 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <span className="text-[10px] uppercase tracking-wider text-[#65472D]/70 font-semibold">
-                                                End
-                                            </span>
-                                            <input
-                                                id="endTime"
-                                                name="endTime"
-                                                type="time"
-                                                required
-                                                value={form.endTime ?? ""}
-                                                onChange={handleChange}
-                                                className="w-full h-11 px-3 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                                        <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
-                                            Quick set:
-                                        </span>
-                                        {[
-                                            { label: "Morning", start: "09:00", end: "12:00" },
-                                            { label: "Afternoon", start: "12:00", end: "16:00" },
-                                            { label: "Evening", start: "17:00", end: "21:00" },
-                                            { label: "Full Day", start: "09:00", end: "21:00" },
-                                        ].map((preset) => (
-                                            <button
-                                                key={preset.label}
-                                                type="button"
-                                                onClick={() => applyPreset(preset.start, preset.end)}
-                                                className="px-3 h-7 rounded-full text-[11px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
-                                            >
-                                                {preset.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                                            {p.label}
+                                        </button>
+                                    ))}
                                 </div>
 
-                                {/* Auto-completion notice */}
-                                {form.date && form.endTime && (
-                                    <div
-                                        className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs transition-colors ${autoCompleted
-                                            ? "bg-[#064B38]/5 border-[#064B38]/20 text-[#064B38]"
-                                            : "bg-[#C99A4B]/5 border-[#C99A4B]/25 text-[#65472D]"
-                                            }`}
-                                    >
-                                        <span
-                                            className={`mt-0.5 font-bold ${autoCompleted ? "text-[#064B38]" : "text-[#C99A4B]"
-                                                }`}
-                                        >
-                                            {autoCompleted ? "✓" : "ℹ"}
-                                        </span>
-                                        <span>
-                                            {autoCompleted
-                                                ? "This event is in the past — the card will automatically show as Completed with highlights CTA."
-                                                : "The card will automatically switch to Completed once the event's end time has passed."}
-                                        </span>
-                                    </div>
+                                {imageError && (
+                                    <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
+                                        <span>⚠</span> Couldn&apos;t load this image. Check the URL and try again.
+                                    </p>
                                 )}
+                            </div>
 
-                                {/* Location */}
-                                <div className="space-y-2">
+                            {/* Date */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="date"
+                                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                >
+                                    <CalendarDays className="size-3.5 text-[#C99A4B]" />
+                                    Event Date <span className="text-[#C83D2B]">*</span>
+                                </label>
+                                <input
+                                    id="date"
+                                    name="date"
+                                    type="date"
+                                    required
+                                    min={getTodayISO()}
+                                    value={form.date ?? ""}
+                                    onChange={handleChange}
+                                    className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                />
+                                {form.date && isPastDate(form.date) && (
+                                    <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
+                                        <span>⚠</span> Past date is not allowed. Please select today or a future date.
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Time Range */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
                                     <label
-                                        htmlFor="location"
+                                        htmlFor="startTime"
                                         className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
                                     >
-                                        <MapPin className="size-3.5 text-[#C83D2B]" />
-                                        Venue / Location <span className="text-[#C83D2B]">*</span>
+                                        <Clock className="size-3.5 text-[#C99A4B]" />
+                                        Event Time <span className="text-[#C83D2B]">*</span>
                                     </label>
-                                    <input
-                                        id="location"
-                                        name="location"
-                                        type="text"
-                                        required
-                                        value={form.location ?? ""}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Ramna Park, Dhaka"
-                                        className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                    />
+                                    <span className="text-[11px] text-[#65472D]/60">
+                                        {formatTimeRange(form.startTime ?? "", form.endTime ?? "") ||
+                                            "start – end"}
+                                    </span>
                                 </div>
 
-                                {/* Category */}
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="category"
-                                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064B38]"
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <Tag className="size-3.5 text-[#C99A4B]" />
-                                            Category <span className="text-[#C83D2B]">*</span>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <span className="text-[10px] uppercase tracking-wider text-[#65472D]/70 font-semibold">
+                                            Start
                                         </span>
-                                        <span className="flex items-center gap-1.5 text-[10px] lowercase text-[#65472D]/70 font-normal">
-                                            <Palette className="size-3 text-[#C99A4B]" />
-                                            auto styled badge
-                                        </span>
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            id="category"
-                                            name="category"
+                                        <input
+                                            id="startTime"
+                                            name="startTime"
+                                            type="time"
                                             required
-                                            value={form.category ?? ""}
+                                            value={form.startTime ?? ""}
                                             onChange={handleChange}
-                                            className="w-full h-11 px-4 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] appearance-none focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
-                                        >
-                                            <option value="" disabled>
-                                                Select a category
-                                            </option>
-                                            {CATEGORIES.map((cat) => (
-                                                <option key={cat.value} value={cat.value}>
-                                                    {cat.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-[#65472D] pointer-events-none" />
+                                            className="w-full h-11 px-3 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                        />
                                     </div>
-                                </div>
-
-                                {/* Description */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <label
-                                            htmlFor="description"
-                                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
-                                        >
-                                            <AlignLeft className="size-3.5 text-[#C99A4B]" />
-                                            Event Description{" "}
-                                            <span className="text-[#C83D2B]">*</span>
-                                        </label>
-                                        <span className="text-[11px] text-[#65472D]/60">
-                                            {(form.description ?? "").length} chars
+                                    <div className="space-y-1">
+                                        <span className="text-[10px] uppercase tracking-wider text-[#65472D]/70 font-semibold">
+                                            End
                                         </span>
+                                        <input
+                                            id="endTime"
+                                            name="endTime"
+                                            type="time"
+                                            required
+                                            value={form.endTime ?? ""}
+                                            onChange={handleChange}
+                                            className="w-full h-11 px-3 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                        />
                                     </div>
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        required
-                                        rows={4}
-                                        value={form.description ?? ""}
-                                        onChange={handleChange}
-                                        placeholder="Provide a rich summary of the celebration, performances, culinary highlights, or artisan showcases..."
-                                        className="w-full p-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all resize-y"
-                                    />
                                 </div>
 
-                                {/* Submit */}
-                                <div className="pt-2">
-                                    <Button
-                                        type="submit"
-                                        disabled={isSubmitting || !isFormValid}
-                                        className="w-full h-12 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? "Creating Event..." : "Publish Event"}
-                                    </Button>
-
-                                    {submitError && (
-                                        <p className="mt-2 text-[11px] text-center text-[#C83D2B]">
-                                            ⚠ {submitError}
-                                        </p>
-                                    )}
-
-                                    {!isFormValid && !submitError && (
-                                        <p className="mt-2 text-[11px] text-center text-[#C83D2B]/70">
-                                            Please fill all required fields to publish.
-                                        </p>
-                                    )}
-                                </div>
-                            </form>
-                        </motion.div>
-
-                        {/* Live Preview Column */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.15 }}
-                            className="lg:col-span-5 lg:sticky lg:top-8"
-                        >
-                            <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-[#C99A4B]/25 p-6 shadow-xl">
-                                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#C99A4B]/20">
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-xs font-bold uppercase tracking-wider text-[#064B38]">
-                                            Live Card Preview
-                                        </span>
-                                    </div>
-                                    <span className="text-[11px] text-[#65472D]/70 font-medium">
-                                        Same as home page card
+                                <div className="flex flex-wrap items-center gap-2 pt-1">
+                                    <span className="text-[10px] uppercase tracking-wider text-[#65472D]/60 font-semibold">
+                                        Quick set:
                                     </span>
-                                </div>
-
-                                <div className="mx-auto max-w-sm">
-                                    <EventCard {...previewCardProps} />
-                                </div>
-
-                                <div className="mt-5 p-3.5 rounded-xl bg-[#F7F1E3]/80 border border-[#C99A4B]/20 text-[11px] text-[#65472D] flex items-start gap-2">
-                                    <span className="text-[#C99A4B] font-bold">ℹ</span>
-                                    <span>
-                                        The preview reflects card image overlay, custom category tag
-                                        styling, date stamp, meta icons, and CTA button exact layout.
-                                        Completed state is applied automatically based on date &amp;
-                                        end time.
-                                    </span>
+                                    {[
+                                        { label: "Morning", start: "09:00", end: "12:00" },
+                                        { label: "Afternoon", start: "12:00", end: "16:00" },
+                                        { label: "Evening", start: "17:00", end: "21:00" },
+                                        { label: "Full Day", start: "09:00", end: "21:00" },
+                                    ].map((preset) => (
+                                        <button
+                                            key={preset.label}
+                                            type="button"
+                                            onClick={() => applyPreset(preset.start, preset.end)}
+                                            className="px-3 h-7 rounded-full text-[11px] font-semibold border border-[#C99A4B]/40 text-[#064B38] bg-[#F7F1E3]/60 hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        </motion.div>
-                    </div>
-                )}
+
+                            {/* Auto-completion notice */}
+                            {form.date && form.endTime && (
+                                <div
+                                    className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs transition-colors ${autoCompleted
+                                        ? "bg-[#064B38]/5 border-[#064B38]/20 text-[#064B38]"
+                                        : "bg-[#C99A4B]/5 border-[#C99A4B]/25 text-[#65472D]"
+                                        }`}
+                                >
+                                    <span
+                                        className={`mt-0.5 font-bold ${autoCompleted ? "text-[#064B38]" : "text-[#C99A4B]"
+                                            }`}
+                                    >
+                                        {autoCompleted ? "✓" : "ℹ"}
+                                    </span>
+                                    <span>
+                                        {autoCompleted
+                                            ? "This event is in the past — the card will automatically show as Completed with highlights CTA."
+                                            : "The card will automatically switch to Completed once the event's end time has passed."}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Location */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="location"
+                                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                >
+                                    <MapPin className="size-3.5 text-[#C83D2B]" />
+                                    Venue / Location <span className="text-[#C83D2B]">*</span>
+                                </label>
+                                <input
+                                    id="location"
+                                    name="location"
+                                    type="text"
+                                    required
+                                    value={form.location ?? ""}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Ramna Park, Dhaka"
+                                    className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                />
+                            </div>
+
+                            {/* Category */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="category"
+                                    className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <Tag className="size-3.5 text-[#C99A4B]" />
+                                        Category <span className="text-[#C83D2B]">*</span>
+                                    </span>
+                                    <span className="flex items-center gap-1.5 text-[10px] lowercase text-[#65472D]/70 font-normal">
+                                        <Palette className="size-3 text-[#C99A4B]" />
+                                        auto styled badge
+                                    </span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        id="category"
+                                        name="category"
+                                        required
+                                        value={form.category ?? ""}
+                                        onChange={handleChange}
+                                        className="w-full h-11 px-4 pr-10 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] appearance-none focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
+                                    >
+                                        <option value="" disabled>
+                                            Select a category
+                                        </option>
+                                        {CATEGORIES.map((cat) => (
+                                            <option key={cat.value} value={cat.value}>
+                                                {cat.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-[#65472D] pointer-events-none" />
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label
+                                        htmlFor="description"
+                                        className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
+                                    >
+                                        <AlignLeft className="size-3.5 text-[#C99A4B]" />
+                                        Event Description{" "}
+                                        <span className="text-[#C83D2B]">*</span>
+                                    </label>
+                                    <span className="text-[11px] text-[#65472D]/60">
+                                        {(form.description ?? "").length} chars
+                                    </span>
+                                </div>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    required
+                                    rows={4}
+                                    value={form.description ?? ""}
+                                    onChange={handleChange}
+                                    placeholder="Provide a rich summary of the celebration, performances, culinary highlights, or artisan showcases..."
+                                    className="w-full p-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] placeholder:text-[#65472D]/50 focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all resize-y"
+                                />
+                            </div>
+
+                            {/* Submit */}
+                            <div className="pt-2">
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting || !isFormValid}
+                                    className="w-full h-12 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? "Creating Event..." : "Publish Event"}
+                                </Button>
+
+                                {submitError && (
+                                    <p className="mt-2 text-[11px] text-center text-[#C83D2B]">
+                                        ⚠ {submitError}
+                                    </p>
+                                )}
+
+                                {!isFormValid && !submitError && (
+                                    <p className="mt-2 text-[11px] text-center text-[#C83D2B]/70">
+                                        Please fill all required fields to publish.
+                                    </p>
+                                )}
+                            </div>
+                        </form>
+                    </motion.div>
+
+                    {/* Live Preview Column */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.15 }}
+                        className="lg:col-span-5 lg:sticky lg:top-8"
+                    >
+                        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-[#C99A4B]/25 p-6 shadow-xl">
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#C99A4B]/20">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-[#064B38]">
+                                        Live Card Preview
+                                    </span>
+                                </div>
+                                <span className="text-[11px] text-[#65472D]/70 font-medium">
+                                    Same as home page card
+                                </span>
+                            </div>
+
+                            <div className="mx-auto max-w-sm">
+                                <EventCard {...previewCardProps} />
+                            </div>
+
+                            <div className="mt-5 p-3.5 rounded-xl bg-[#F7F1E3]/80 border border-[#C99A4B]/20 text-[11px] text-[#65472D] flex items-start gap-2">
+                                <span className="text-[#C99A4B] font-bold">ℹ</span>
+                                <span>
+                                    The preview reflects card image overlay, custom category tag
+                                    styling, date stamp, meta icons, and CTA button exact layout.
+                                    Completed state is applied automatically based on date &amp;
+                                    end time.
+                                </span>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
         </div>
     );
