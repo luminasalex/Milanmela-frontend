@@ -65,12 +65,12 @@ export default async function AllEventsPage() {
                         </p>
                     </div>
 
-                    <Link href="/create-event">
+                    {/* <Link href="/create-event">
                         <Button className="h-11 px-6 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] text-xs sm:text-sm font-semibold shadow-md transition-all">
                             <PlusCircle className="size-4 mr-2" />
                             Create New Event
                         </Button>
-                    </Link>
+                    </Link> */}
                 </div>
 
                 {/* Events Grid */}
@@ -100,9 +100,6 @@ export default async function AllEventsPage() {
                         <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#C99A4B]/20">
                             <span className="text-xs font-bold uppercase tracking-wider text-[#064B38]">
                                 Showing {events.length} {events.length === 1 ? "Event" : "Events"}
-                            </span>
-                            <span className="text-[11px] text-[#65472D]/70 font-medium">
-                                Sorted by date (upcoming first)
                             </span>
                         </div>
 

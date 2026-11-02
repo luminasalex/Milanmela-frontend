@@ -189,6 +189,23 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
 
+
+                  <DropdownMenuItem className="cursor-pointer rounded-lg px-2.5 py-2 text-xs font-semibold text-[#064B38] hover:bg-[#064B38]/10 transition-colors">
+                    <Link href="/joined-events" className="flex items-center gap-2.5 w-full">
+                      <Calendar className="size-4 text-[#064B38]" />
+                      <span>My Joined Events</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+
+                  <DropdownMenuItem className="cursor-pointer rounded-lg px-2.5 py-2 text-xs font-semibold text-[#064B38] hover:bg-[#064B38]/10 transition-colors">
+                    <Link href="/manage-events" className="flex items-center gap-2.5 w-full">
+                      <Calendar className="size-4 text-[#064B38]" />
+                      <span>Manage Events</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+
                   <DropdownMenuSeparator className="bg-[#C99A4B]/20 my-1" />
 
                   {/* Sign Out Action inside Dropdown */}
