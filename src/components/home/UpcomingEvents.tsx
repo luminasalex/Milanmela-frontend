@@ -45,7 +45,7 @@ export default function UpcomingEvents() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;

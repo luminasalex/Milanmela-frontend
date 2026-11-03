@@ -53,7 +53,9 @@ export default function ManageEventsPage() {
         }
 
         // Backend theke logged in user er events niye ashi
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/my-events/${user.email}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/my-events/${user.email}`, {
+            cache: "no-store",
+        })
             .then((res) => res.json())
             .then((data) => {
                 setEvents(Array.isArray(data) ? data : []);
