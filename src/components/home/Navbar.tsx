@@ -42,11 +42,18 @@ export default function Navbar() {
 
   async function handleSignOut() {
     try {
-      await authClient.signOut();
+      const { error } = await authClient.signOut();
+      if (error) {
+        console.error("Sign out failed:", error);
+        toast.error(error.message || "Failed to sign out. Please try again.");
+        return;
+      }
+
       toast.success("Signed out successfully.");
       router.push("/sing-in");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("Sign out failed:", error);
       toast.error("Failed to sign out. Please try again.");
     }
   }
