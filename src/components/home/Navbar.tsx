@@ -31,8 +31,8 @@ import { toast } from "react-toastify";
 const navLinks = [
   { label: "About", href: "/#about" },
   { label: "Upcoming Events", href: "/#upcoming-events" },
-  { label: "Create Event", href: "/create-event" },
-  { label: "All Events", href: "/events" },
+  // { label: "Create Event", href: "/create-event" },
+  // { label: "All Events", href: "/events" },
   { label: "Gallery Showcase", href: "/#gallery" },
 ];
 

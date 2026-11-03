@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
 import EventCard, { type EventCardProps } from "./EventCard";
-import Link from "next/link";
+
 import {
   type EventItem,
   CATEGORY_COLORS,
@@ -46,7 +45,7 @@ export default function UpcomingEvents() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("http://localhost:5000/events")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -107,7 +106,7 @@ export default function UpcomingEvents() {
             </motion.p>
           </div>
 
-          <Link href="/events" className="shrink-0">
+          {/* <Link href="/events" className="shrink-0">
             <Button
               variant="outline"
               className="h-10 px-6 rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] text-sm font-semibold transition-all"
@@ -115,7 +114,7 @@ export default function UpcomingEvents() {
               View All Events
               <ArrowRight className="size-4 ml-1" />
             </Button>
-          </Link>
+          </Link> */}
         </div>
 
         {/* Events grid */}
