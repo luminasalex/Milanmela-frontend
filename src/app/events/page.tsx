@@ -10,6 +10,8 @@ import {
     sortEventsByDate,
 } from "@/lib/events";
 
+export const dynamic = "force-dynamic";
+
 export default async function AllEventsPage() {
     // 1. Backend theke shorasori data fetch kora (Beginner-friendly way)
     let rawEvents = [];

@@ -39,3 +39,5 @@ scm-history-item:d%3A%5Cassinment-8%5Cclient-server?%7B%22repositoryId%22%3A%22s
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
