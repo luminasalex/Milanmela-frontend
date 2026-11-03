@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PlusCircle, Calendar, Sparkles } from "lucide-react";
+import {  Calendar, Sparkles } from "lucide-react";
 import EventCard from "@/components/home/EventCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,7 @@ export default async function AllEventsPage() {
     // 1. Backend theke shorasori data fetch kora (Beginner-friendly way)
     let rawEvents = [];
     try {
-        const res = await fetch("http://localhost:5000/events", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
             cache: "no-store", // notun event add korle jate sathe sathe update dekha jay
         });
         rawEvents = await res.json();

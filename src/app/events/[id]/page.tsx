@@ -71,7 +71,7 @@ const EventDetailsPage = async ({
 
     let data: EventItem | null = null;
     try {
-        const res = await fetch(`http://localhost:5000/events/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
             cache: "no-store",
         });
 
@@ -92,8 +92,6 @@ const EventDetailsPage = async ({
         CATEGORY_COLORS[category] || "bg-[#064B38]/10 text-[#064B38]";
     const displayImage =
         data.imageUrl || data.image || "/Milanmela.png";
-    const isExternalImage =
-        displayImage.startsWith("http://") || displayImage.startsWith("https://");
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative overflow-hidden">

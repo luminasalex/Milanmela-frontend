@@ -9,7 +9,6 @@ import {
     PlusCircle,
     Trash2,
     Eye,
-    Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,12 +47,13 @@ export default function ManageEventsPage() {
         if (isPending) return;
 
         if (!user?.email) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoading(false);
             return;
         }
 
         // Backend theke logged in user er events niye ashi
-        fetch(`http://localhost:5000/my-events/${user.email}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/my-events/${user.email}`)
             .then((res) => res.json())
             .then((data) => {
                 setEvents(Array.isArray(data) ? data : []);
@@ -73,7 +73,7 @@ export default function ManageEventsPage() {
 
         try {
             const res = await fetch(
-                `http://localhost:5000/events/${selectedEvent._id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent._id}`,
                 {
                     method: "DELETE",
                 }

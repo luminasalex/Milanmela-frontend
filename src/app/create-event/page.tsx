@@ -158,7 +158,7 @@ async function validateImageUrl(url: string): Promise<boolean> {
 }
 
 async function saveEvent(data: EventFormData, creatorEmail?: string) {
-    const res = await fetch("http://localhost:5000/create-event", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-event`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
