@@ -1,4 +1,5 @@
 import type { EventItem } from "@/lib/events";
+import { getAuthToken } from "@/lib/api-auth";
 
 const joinedEventsCache = new Map<string, Promise<EventItem[]>>();
 
@@ -6,10 +7,16 @@ export function getJoinedEvents(email: string): Promise<EventItem[]> {
   const cached = joinedEventsCache.get(email);
   if (cached) return cached;
 
-  const request = fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/joined-events/${encodeURIComponent(email)}`,
-    { cache: "no-store" },
-  )
+  const request = getAuthToken()
+    .then((token) =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/joined-events`,
+        {
+          cache: "no-store",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      ),
+    )
     .then(async (response) => {
       if (!response.ok) {
         throw new Error(`Could not load joined events (${response.status}).`);

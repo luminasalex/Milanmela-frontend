@@ -21,6 +21,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { authClient } from "@/lib/auth-client";
+import { getAuthToken } from "@/lib/api-auth";
 import {
     type EventItem,
     CATEGORY_COLORS,
@@ -59,11 +60,19 @@ export default function ManageEventsPage() {
             return;
         }
 
-        // Backend theke logged in user er events niye ashi
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/my-events/${user.email}`, {
-            cache: "no-store",
-        })
-            .then((res) => res.json())
+        getAuthToken()
+            .then((token) =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/my-events`, {
+                    cache: "no-store",
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            )
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`Could not load events (${res.status}).`);
+                }
+                return res.json();
+            })
             .then((data) => {
                 setEvents(Array.isArray(data) ? sortEventsByDate(data) : []);
                 setLoading(false);
@@ -81,10 +90,12 @@ export default function ManageEventsPage() {
         setIsDeleting(true);
 
         try {
+            const token = await getAuthToken();
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent._id}`,
                 {
                     method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 

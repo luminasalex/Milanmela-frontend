@@ -21,7 +21,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // react-toastify v11 hole ei line lagbe na
 import { Button } from "@/components/ui/button";
 import EventCard from "@/components/home/EventCard";
-import { useSession } from "@/lib/auth-client";
+import { getAuthToken } from "@/lib/api-auth";
 
 const CATEGORIES = [
     { label: "Festival", value: "Festival" },
@@ -157,16 +157,15 @@ async function validateImageUrl(url: string): Promise<boolean> {
     });
 }
 
-async function saveEvent(data: EventFormData, creatorEmail?: string) {
+async function saveEvent(data: EventFormData) {
+    const token = await getAuthToken();
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-event`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-            ...data,
-            creatorEmail: creatorEmail || "",
-        }),
+        body: JSON.stringify(data),
     });
 
     if (!res.ok) {
@@ -183,9 +182,6 @@ export default function CreateEventPage() {
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-
-    const { data: session } = useSession();
-    const { user } = session || {};
 
     useEffect(() => {
         const eventId = new URLSearchParams(window.location.search).get("id");
@@ -306,11 +302,15 @@ export default function CreateEventPage() {
             }
 
             if (editingEventId) {
+                const token = await getAuthToken();
                 const res = await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/events/${editingEventId}`,
                     {
                         method: "PUT",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
                         body: JSON.stringify(form),
                     },
                 );
@@ -319,7 +319,7 @@ export default function CreateEventPage() {
                 }
                 toast.success("Event updated successfully!");
             } else {
-                await saveEvent(form, user?.email);
+                await saveEvent(form);
                 toast.success("Event created successfully! 🎉");
                 setForm(initialForm);
             }

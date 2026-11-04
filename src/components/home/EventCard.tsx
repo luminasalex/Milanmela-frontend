@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
+import { getAuthToken } from "@/lib/api-auth";
 import {
   getJoinedEventIds,
   invalidateJoinedEventIds,
@@ -90,12 +91,12 @@ export default function EventCard({
 
     setIsJoining(true);
     try {
+      const token = await getAuthToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/events/${encodeURIComponent(eventId)}/join`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       if (!response.ok) {
