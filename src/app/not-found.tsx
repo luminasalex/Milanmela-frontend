@@ -1,11 +1,6 @@
 import Link from "next/link";
-import type { Metadata } from "next";
-import { Home, Search, Calendar } from "lucide-react";
-
-export const metadata: Metadata = {
-    title: "404 — Page Not Found | MilanMela",
-    description: "The page you are looking for does not exist.",
-};
+import { Home, Search, ArrowLeft, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
     return (
@@ -19,12 +14,14 @@ export default function NotFound() {
 
             <div className="relative z-10 max-w-lg w-full text-center">
                 {/* Big 404 */}
-                <h1
-                    className="text-[120px] sm:text-[160px] font-bold leading-none text-[#064B38]/10 select-none"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                >
-                    404
-                </h1>
+                <div className="mb-6">
+                    <h1
+                        className="text-[120px] sm:text-[160px] font-bold leading-none text-[#064B38]/10 select-none"
+                        style={{ fontFamily: "var(--font-serif)" }}
+                    >
+                        404
+                    </h1>
+                </div>
 
                 {/* Icon */}
                 <div className="flex justify-center mb-4 -mt-24 sm:-mt-28">
@@ -33,7 +30,7 @@ export default function NotFound() {
                     </div>
                 </div>
 
-                {/* Label */}
+                {/* Message */}
                 <div className="flex items-center justify-center gap-2 mb-2 text-[#C99A4B]">
                     <span className="text-xs">✦</span>
                     <span className="text-xs font-bold uppercase tracking-wider">
@@ -42,7 +39,6 @@ export default function NotFound() {
                     <span className="text-xs">✦</span>
                 </div>
 
-                {/* Heading */}
                 <h2
                     className="text-3xl sm:text-4xl font-bold text-[#064B38] mb-3"
                     style={{ fontFamily: "var(--font-serif)" }}
@@ -58,24 +54,36 @@ export default function NotFound() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Link
-                        href="/"
+                    <Button
+                        asChild
                         className="w-full sm:w-auto rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold px-6"
                     >
-                        <Home className="size-4 mr-2" />
-                        Go Home
-                    </Link>
+                        <Link href="/">
+                            <Home className="size-4 mr-2" />
+                            Go Home
+                        </Link>
+                    </Button>
 
-                    <Link
-                        href="/events"
+                    <Button
+                        asChild
+                        variant="outline"
                         className="w-full sm:w-auto rounded-full border-[#C99A4B] text-[#064B38] hover:bg-[#C99A4B] hover:text-white font-semibold px-6"
                     >
-                        <Search className="size-4 mr-2" />
-                        Browse Events
-                    </Link>
+                        <Link href="/events">
+                            <Search className="size-4 mr-2" />
+                            Browse Events
+                        </Link>
+                    </Button>
                 </div>
 
-
+                {/* Back link */}
+                <Link
+                    href="/events/manage"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#65472D] hover:text-[#064B38] mt-6 transition-colors"
+                >
+                    <ArrowLeft className="size-3.5" />
+                    Back to Dashboard
+                </Link>
             </div>
         </div>
     );
