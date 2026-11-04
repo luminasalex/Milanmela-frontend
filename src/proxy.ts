@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (pathname === '/') {
+  if (pathname === '/' || pathname === '/sing-in' || pathname === '/sing-up') {
     return NextResponse.next()
   }
 
@@ -22,6 +22,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sing-in|sing-up|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|.*\\..*).*)',
   ],
 }
