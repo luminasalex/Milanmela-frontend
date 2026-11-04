@@ -5,6 +5,9 @@ export async function getAuthToken(): Promise<string> {
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Please sign in again to continue.");
+    }
     throw new Error(`Could not get an auth token (${response.status}).`);
   }
 

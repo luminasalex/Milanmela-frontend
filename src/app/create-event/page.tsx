@@ -174,11 +174,29 @@ async function saveEvent(data: EventFormData) {
     });
 
     if (!res.ok) {
-        throw new Error(`Server returned error: ${res.status}`);
+        throw new Error(await getApiErrorMessage(res));
     }
 
     const result = await res.json();
     return result;
+}
+
+async function getApiErrorMessage(response: Response): Promise<string> {
+    if (response.status === 401) {
+        return "Your session is no longer valid. Sign in again and retry.";
+    }
+
+    const result: unknown = await response.json().catch(() => null);
+    if (
+        typeof result === "object" &&
+        result !== null &&
+        "message" in result &&
+        typeof result.message === "string"
+    ) {
+        return result.message;
+    }
+
+    return `Server returned error: ${response.status}`;
 }
 
 export default function CreateEventPage() {
@@ -321,7 +339,7 @@ export default function CreateEventPage() {
                     },
                 );
                 if (!res.ok) {
-                    throw new Error(`Server returned error: ${res.status}`);
+                    throw new Error(await getApiErrorMessage(res));
                 }
                 toast.success("Event updated successfully!");
                 router.push("/manage-events");
