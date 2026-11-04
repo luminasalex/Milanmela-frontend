@@ -107,7 +107,7 @@ export default function JoinEventButton({
       <Button
         type="button"
         disabled
-        className="w-full h-9 rounded-full bg-[#064B38]/10 text-[#064B38] text-xs font-semibold"
+        className="w-full h-9 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold"
       >
         Checking account...
       </Button>
@@ -120,7 +120,7 @@ export default function JoinEventButton({
         <Button
           type="button"
           variant="outline"
-          className="w-full h-9 rounded-full border-[#C99A4B] text-[#064B38] text-xs font-semibold hover:bg-[#C99A4B]/15"
+          className="w-full h-9 rounded-full border-zinc-300 text-zinc-700 text-xs font-semibold hover:bg-zinc-100"
         >
           Sign in to Join
           <UserRoundPlus className="size-3.5 ml-1" />
@@ -133,7 +133,7 @@ export default function JoinEventButton({
     return (
       <Badge
         variant="outline"
-        className="h-9 w-full justify-center rounded-full border-[#064B38]/30 bg-[#064B38]/5 text-[#064B38] text-xs font-semibold"
+        className="h-9 w-full justify-center rounded-full border-zinc-300 bg-zinc-100 text-zinc-600 text-xs font-semibold"
       >
         <Check className="size-3.5" />
         Joined
@@ -143,11 +143,12 @@ export default function JoinEventButton({
 
   return (
     <>
+      {/* ✅ NEW: Ash/zinc primary button */}
       <Button
         type="button"
         onClick={() => setIsConfirmationOpen(true)}
         disabled={isJoining || isJoined !== false}
-        className="w-full h-9 rounded-full bg-[#C83D2B] text-white text-xs font-semibold hover:bg-[#C83D2B]/90"
+        className="w-full h-9 rounded-full bg-zinc-700 text-white text-xs font-semibold hover:bg-zinc-800 shadow-sm hover:shadow-md transition-all"
       >
         {isJoined === null ? "Checking..." : "Join Event"}
         <UserRoundPlus className="size-3.5 ml-1" />
@@ -159,29 +160,30 @@ export default function JoinEventButton({
           if (!isJoining) setIsConfirmationOpen(open);
         }}
       >
-        <AlertDialogContent className="border border-[#C99A4B]/30 bg-[#F7F1E3]">
+        <AlertDialogContent className="border border-zinc-200 bg-[#F7F1E3]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-[#064B38]">
+            <AlertDialogTitle className="text-zinc-800">
               Join this event?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-[#65472D]">
+            <AlertDialogDescription className="text-zinc-500">
               Confirm to add this event to your Joined Events list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={isJoining}
-              className="rounded-full border-[#C99A4B] text-[#064B38]"
+              className="rounded-full border-zinc-300 text-zinc-700 hover:bg-zinc-100"
             >
               Cancel
             </AlertDialogCancel>
+            {/* ✅ NEW: Ash confirm button */}
             <Button
               type="button"
               onClick={handleJoin}
               disabled={isJoining}
-              className="rounded-full bg-[#C83D2B] text-white hover:bg-[#C83D2B]/90"
+              className="rounded-full bg-zinc-700 text-white hover:bg-zinc-800 shadow-sm"
             >
-              {isJoining ? "Joining......" : "Confirm Join"}
+              {isJoining ? "Joining..." : "Confirm Join"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
