@@ -9,6 +9,7 @@ import {
     PlusCircle,
     Trash2,
     Eye,
+    Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -278,6 +279,19 @@ export default function ManageEventsPage() {
                                                 >
                                                     <Eye className="size-3.5 mr-1" />
                                                     View Details
+                                                </Button>
+                                            </Link>
+
+                                            <Link
+                                                href={`/create-event?id=${encodeURIComponent(event._id)}`}
+                                                className="flex-1"
+                                            >
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full h-9 rounded-xl border-[#C99A4B] text-[#064B38] text-xs font-semibold hover:bg-[#C99A4B]/15"
+                                                >
+                                                    <Pencil className="size-3.5 mr-1" />
+                                                    Edit
                                                 </Button>
                                             </Link>
 

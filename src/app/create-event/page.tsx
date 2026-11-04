@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     CalendarDays,
@@ -180,11 +180,62 @@ async function saveEvent(data: EventFormData, creatorEmail?: string) {
 export default function CreateEventPage() {
     const [form, setForm] = useState<EventFormData>(initialForm);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingEventId, setEditingEventId] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
     const { data: session } = useSession();
     const { user } = session || {};
+
+    useEffect(() => {
+        const eventId = new URLSearchParams(window.location.search).get("id");
+        if (!eventId) return;
+
+        async function loadEvent() {
+            try {
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`,
+                    { cache: "no-store" },
+                );
+                setEditingEventId(eventId);
+                if (!res.ok) {
+                    throw new Error(`Could not load event (server returned ${res.status}).`);
+                }
+
+                const event = await res.json();
+                if (!event || !event._id) {
+                    throw new Error("Event not found.");
+                }
+
+                const rawDate = typeof event.date === "string" ? event.date : "";
+                const parsedDate = rawDate ? new Date(rawDate) : null;
+                const date = /^\d{4}-\d{2}-\d{2}/.test(rawDate)
+                    ? rawDate.slice(0, 10)
+                    : parsedDate && !Number.isNaN(parsedDate.getTime())
+                      ? `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, "0")}-${String(parsedDate.getDate()).padStart(2, "0")}`
+                      : "";
+
+                setForm({
+                    title: event.title || "",
+                    date,
+                    startTime: event.startTime || "",
+                    endTime: event.endTime || "",
+                    location: event.location || "",
+                    category: event.category || "",
+                    description: event.description || "",
+                    imageUrl: event.imageUrl || event.image || "",
+                });
+            } catch (error) {
+                const message =
+                    error instanceof Error ? error.message : "Could not load event.";
+                setEditingEventId(eventId);
+                setSubmitError(message);
+                toast.error(message);
+            }
+        }
+
+        void loadEvent();
+    }, []);
 
     const autoCompleted = useMemo(
         () => isEventCompleted(form.date, form.endTime),
@@ -202,7 +253,7 @@ export default function CreateEventPage() {
         form.location.trim() !== "" &&
         form.category.trim() !== "" &&
         form.description.trim() !== "" &&
-        !isPastDate(form.date);
+        (!isPastDate(form.date) || Boolean(editingEventId));
 
     function handleChange(
         e: React.ChangeEvent<
@@ -233,7 +284,7 @@ export default function CreateEventPage() {
         if (!isFormValid || isSubmitting) return;
 
         // Past date safety check
-        if (isPastDate(form.date)) {
+        if (!editingEventId && isPastDate(form.date)) {
             const msg =
                 "You cannot create an event in the past. Please select today or a future date.";
             setSubmitError(msg);
@@ -254,11 +305,24 @@ export default function CreateEventPage() {
                 }
             }
 
-            // Save event to database with logged-in user email
-            await saveEvent(form, user?.email);
-
-            toast.success("Event created successfully! 🎉");
-            setForm(initialForm); // form reset
+            if (editingEventId) {
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/events/${editingEventId}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(form),
+                    },
+                );
+                if (!res.ok) {
+                    throw new Error(`Server returned error: ${res.status}`);
+                }
+                toast.success("Event updated successfully!");
+            } else {
+                await saveEvent(form, user?.email);
+                toast.success("Event created successfully! 🎉");
+                setForm(initialForm);
+            }
             setImageError(false);
         } catch (err) {
             const message =
@@ -319,7 +383,7 @@ export default function CreateEventPage() {
                         <div className="h-px w-14 bg-gradient-to-r from-transparent to-[#C99A4B]" />
                         <span className="text-[#C99A4B]">✦</span>
                         <span className="text-xs font-bold tracking-widest text-[#C99A4B] uppercase">
-                            Host a Cultural Gathering
+                            {editingEventId ? "Update Your Cultural Gathering" : "Host a Cultural Gathering"}
                         </span>
                         <span className="text-[#C99A4B]">✦</span>
                         <div className="h-px w-14 bg-gradient-to-l from-transparent to-[#C99A4B]" />
@@ -332,7 +396,7 @@ export default function CreateEventPage() {
                         className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#064B38]"
                         style={{ fontFamily: "var(--font-serif)" }}
                     >
-                        Create New Event
+                        {editingEventId ? "Edit Event" : "Create New Event"}
                     </motion.h1>
 
                     <motion.p
@@ -341,8 +405,9 @@ export default function CreateEventPage() {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="mt-3 text-sm sm:text-base text-[#65472D] max-w-xl mx-auto"
                     >
-                        Provide all details matching our event showcase card. Preview updates
-                        in real-time as you compose your event.
+                        {editingEventId
+                            ? "Update the event details below. Your preview updates in real time."
+                            : "Provide all details matching our event showcase card. Preview updates in real-time as you compose your event."}
                     </motion.p>
                 </div>
 
@@ -682,7 +747,13 @@ export default function CreateEventPage() {
                                     disabled={isSubmitting || !isFormValid}
                                     className="w-full h-12 rounded-full bg-[#064B38] hover:bg-[#064B38]/90 text-[#F7F1E3] font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isSubmitting ? "Creating Event..." : "Publish Event"}
+                                    {isSubmitting
+                                        ? editingEventId
+                                            ? "Updating Event..."
+                                            : "Creating Event..."
+                                        : editingEventId
+                                          ? "Update Event"
+                                          : "Publish Event"}
                                 </Button>
 
                                 {submitError && (
