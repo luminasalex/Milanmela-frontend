@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, Sparkles } from "lucide-react";
 import EventCard from "@/components/home/EventCard";
+import CategoryFilter from "@/components/home/CategoryFilter";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import {
     CATEGORY_COLORS,
+    filterEventsByCategory,
     formatDate,
     formatTimeRange,
+    getEventCategories,
     isCompletedEvent,
     sortEventsByDate,
     type EventItem,
@@ -22,6 +25,10 @@ export default function JoinedEventsPage() {
     const email = session?.user?.email;
     const [events, setEvents] = useState<EventItem[]>([]);
     const [loadedForEmail, setLoadedForEmail] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState("all");
+
+    const categories = getEventCategories(events);
+    const visibleEvents = filterEventsByCategory(events, selectedCategory);
 
     useEffect(() => {
         if (isPending || !email) return;
@@ -122,10 +129,22 @@ export default function JoinedEventsPage() {
                 ) : (
                     <section aria-label="Events you have joined">
                         <p className="mb-6 pb-3 border-b border-[#C99A4B]/20 text-xs font-bold uppercase tracking-wider text-[#064B38]">
-                            {events.length} {events.length === 1 ? "Event" : "Events"}
+                            {visibleEvents.length} {visibleEvents.length === 1 ? "Event" : "Events"}
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-                            {events.map((event) => {
+                        <div className="mb-6 flex justify-end">
+                            <CategoryFilter
+                                categories={categories}
+                                value={selectedCategory}
+                                onChange={setSelectedCategory}
+                            />
+                        </div>
+                        {visibleEvents.length === 0 ? (
+                            <p className="rounded-2xl border border-[#C99A4B]/25 bg-white p-8 text-center text-sm text-[#65472D]">
+                                No joined events found in this category.
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                            {visibleEvents.map((event) => {
                                 const category = event.category || "Festival";
                                 const image = event.imageUrl || event.image || "/Milanmela.png";
 
@@ -154,7 +173,8 @@ export default function JoinedEventsPage() {
                                     />
                                 );
                             })}
-                        </div>
+                            </div>
+                        )}
                     </section>
                 )}
             </div>

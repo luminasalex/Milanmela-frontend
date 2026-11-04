@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar } from "lucide-react";
 import EventCard, { type EventCardProps } from "./EventCard";
+import CategoryFilter from "./CategoryFilter";
 
 import {
   type EventItem,
   CATEGORY_COLORS,
+  filterEventsByCategory,
   formatDate,
   formatTimeRange,
+  getEventCategories,
   isCompletedEvent,
+  isUpcomingEvent,
   sortEventsByDate,
 } from "@/lib/events";
 
@@ -41,6 +45,7 @@ function toCardProps(event: EventItem): EventCardProps {
 export default function UpcomingEvents() {
   const [events, setEvents] = useState<EventCardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +55,10 @@ export default function UpcomingEvents() {
       .then((data) => {
         if (cancelled) return;
         const validData = Array.isArray(data) ? data : [];
-        setEvents(sortEventsByDate(validData).slice(0, TOP_EVENTS).map(toCardProps));
+        const upcomingEvents = validData.filter(
+          (event: EventItem) => isUpcomingEvent(event),
+        );
+        setEvents(sortEventsByDate(upcomingEvents).map(toCardProps));
         setLoading(false);
       })
       .catch((err) => {
@@ -62,6 +70,12 @@ export default function UpcomingEvents() {
       cancelled = true;
     };
   }, []);
+
+  const categories = getEventCategories(events);
+  const visibleEvents = filterEventsByCategory(events, selectedCategory).slice(
+    0,
+    TOP_EVENTS,
+  );
 
   return (
     <section
@@ -105,16 +119,6 @@ export default function UpcomingEvents() {
               culture, arts, and community.
             </motion.p>
           </div>
-
-          {/* <Link href="/events" className="shrink-0">
-            <Button
-              variant="outline"
-              className="h-10 px-6 rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] text-sm font-semibold transition-all"
-            >
-              View All Events
-              <ArrowRight className="size-4 ml-1" />
-            </Button>
-          </Link> */}
         </div>
 
         {/* Events grid */}
@@ -137,25 +141,40 @@ export default function UpcomingEvents() {
             </p>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
-          >
-            {events.map((event, i) => (
+          <div className="space-y-6">
+            <div className="flex justify-end">
+              <CategoryFilter
+                categories={categories}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+              />
+            </div>
+            {visibleEvents.length === 0 ? (
+              <div className="rounded-2xl border border-[#C99A4B]/25 bg-[#F7F1E3]/60 p-8 text-center text-sm text-[#65472D]">
+                No upcoming events found in this category.
+              </div>
+            ) : (
               <motion.div
-                key={`${event.title}-${i}`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.55, delay: i * 0.1 }}
+                transition={{ duration: 0.5 }}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
               >
-                <EventCard {...event} />
+                {visibleEvents.map((event, i) => (
+                  <motion.div
+                    key={`${event.id || event.title}-${i}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.55, delay: i * 0.1 }}
+                  >
+                    <EventCard {...event} />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
+            )}
+          </div>
         )}
       </div>
     </section>

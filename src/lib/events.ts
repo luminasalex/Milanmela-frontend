@@ -23,6 +23,25 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Other: "bg-[#064B38]/10 text-[#064B38]",
 };
 
+export function getEventCategories(events: Pick<EventItem, "category">[]): string[] {
+  const categories = new Set(
+    events
+      .map((event) => event.category?.trim())
+      .filter((category): category is string => Boolean(category)),
+  );
+  return [...categories].sort((a, b) => a.localeCompare(b));
+}
+
+export function filterEventsByCategory<T extends Pick<EventItem, "category">>(
+  events: T[],
+  category: string,
+): T[] {
+  if (category === "all") return events;
+  return events.filter(
+    (event) => event.category?.trim().toLowerCase() === category.toLowerCase(),
+  );
+}
+
 export function formatDate(raw?: string): string {
   if (!raw) return "Date TBD";
   const d = new Date(raw);
@@ -61,7 +80,7 @@ export function isCompletedEvent(
   endTime?: string,
   isCompletedFlag?: boolean,
 ): boolean {
-  if (typeof isCompletedFlag === "boolean") return isCompletedFlag;
+  if (isCompletedFlag === true) return true;
   if (!date) return false;
   const eventDate = new Date(date);
   if (isNaN(eventDate.getTime())) return false;
@@ -80,8 +99,17 @@ export function isCompletedEvent(
   return endDateTime.getTime() < Date.now();
 }
 
+export function isUpcomingEvent(event: Pick<EventItem, "date" | "endTime">): boolean {
+  if (!event.date) return false;
+  const eventDate = new Date(event.date);
+  if (Number.isNaN(eventDate.getTime())) return false;
+  return getEventTimestamp(event) >= Date.now();
+}
+
 // Helper: event er date + endTime ke timestamp (ms) e convert kore
-export function getEventTimestamp(event: EventItem): number {
+export function getEventTimestamp(
+  event: Pick<EventItem, "date" | "endTime">,
+): number {
   if (!event.date) return Number.MAX_SAFE_INTEGER; // date na thakle sobcheye niche
 
   const d = new Date(event.date);

@@ -1,7 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import EventCard from "./EventCard";
+import CategoryFilter from "./CategoryFilter";
+import {
+  filterEventsByCategory,
+  getEventCategories,
+} from "@/lib/events";
 
 const completedEvents = [
   {
@@ -73,6 +79,13 @@ const completedEvents = [
 ];
 
 export default function CompletedEvents() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const recentEvents = [...completedEvents].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+  const categories = getEventCategories(recentEvents);
+  const visibleEvents = filterEventsByCategory(recentEvents, selectedCategory);
+
   return (
     <section
       id="completed-events"
@@ -114,9 +127,22 @@ export default function CompletedEvents() {
           </motion.p>
         </div>
 
+        <div className="mb-6 flex justify-end">
+          <CategoryFilter
+            categories={categories}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+          />
+        </div>
+
         {/* Events grid */}
+        {visibleEvents.length === 0 ? (
+          <p className="rounded-2xl border border-[#C99A4B]/25 bg-white p-8 text-center text-sm text-[#65472D]">
+            No past events found in this category.
+          </p>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-          {completedEvents.map((event, i) => (
+          {visibleEvents.map((event, i) => (
             <motion.div
               key={event.title}
               initial={{ opacity: 0, y: 30 }}
@@ -128,6 +154,7 @@ export default function CompletedEvents() {
             </motion.div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

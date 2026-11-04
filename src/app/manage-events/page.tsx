@@ -24,12 +24,16 @@ import { authClient } from "@/lib/auth-client";
 import {
     type EventItem,
     CATEGORY_COLORS,
+    filterEventsByCategory,
     formatDate,
     formatTimeRange,
+    getEventCategories,
     isCompletedEvent,
+    sortEventsByDate,
 } from "@/lib/events";
 import { toast } from "react-toastify";
 import JoinEventButton from "@/components/home/JoinEventButton";
+import CategoryFilter from "@/components/home/CategoryFilter";
 
 export default function ManageEventsPage() {
     // 1. Logged in user info
@@ -39,6 +43,7 @@ export default function ManageEventsPage() {
     // 2. States
     const [events, setEvents] = useState<EventItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState("all");
 
     // Delete popup er jonno selected event
     const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -60,7 +65,7 @@ export default function ManageEventsPage() {
         })
             .then((res) => res.json())
             .then((data) => {
-                setEvents(Array.isArray(data) ? data : []);
+                setEvents(Array.isArray(data) ? sortEventsByDate(data) : []);
                 setLoading(false);
             })
             .catch((err) => {
@@ -98,6 +103,9 @@ export default function ManageEventsPage() {
             setIsDeleting(false);
         }
     }
+
+    const categories = getEventCategories(events);
+    const visibleEvents = filterEventsByCategory(events, selectedCategory);
 
     return (
         <div className="min-h-screen bg-[#F7F1E3] relative py-12 px-4 sm:px-6 lg:px-8">
@@ -183,12 +191,24 @@ export default function ManageEventsPage() {
                 ) : (
                     // Events List Grid
                     <div>
-                        <div className="mb-4 text-xs font-bold uppercase text-[#064B38]">
-                            Total Events: {events.length}
+                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-xs font-bold uppercase text-[#064B38]">
+                                Showing {visibleEvents.length} of {events.length} Events
+                            </span>
+                            <CategoryFilter
+                                categories={categories}
+                                value={selectedCategory}
+                                onChange={setSelectedCategory}
+                            />
                         </div>
 
+                        {visibleEvents.length === 0 ? (
+                            <div className="rounded-2xl border border-[#C99A4B]/25 bg-white p-8 text-center text-sm text-[#65472D]">
+                                No events found in this category.
+                            </div>
+                        ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {events.map((event) => {
+                            {visibleEvents.map((event) => {
                                 const category = event.category || "Festival";
                                 const isCompleted = isCompletedEvent(
                                     event.date,
@@ -315,6 +335,7 @@ export default function ManageEventsPage() {
                                 );
                             })}
                         </div>
+                        )}
                     </div>
                 )}
             </div>
