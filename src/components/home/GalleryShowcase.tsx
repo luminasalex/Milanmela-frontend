@@ -8,42 +8,49 @@ import { Button } from "@/components/ui/button";
 const galleryItems = [
   {
     caption: "Baishakhi Procession",
+    src: "/gallery/baishakhi-procession.jpg",
     aspect: "aspect-[4/5]",
     objectPos: "object-top",
     colSpan: "",
   },
   {
-    caption: "Evening Cultural Performance",
+    caption: "Pitha Puli",
+    src: "/gallery/pitha-puli.jpg",
     aspect: "aspect-[16/9]",
     objectPos: "object-center",
     colSpan: "sm:col-span-2 md:col-span-2",
   },
   {
     caption: "Traditional Folk Dance",
+    src: "/gallery/traditional-folk-dance.jpg",
     aspect: "aspect-square",
     objectPos: "object-center",
     colSpan: "",
   },
   {
     caption: "Nakshi Kantha Workshop",
+    src: "/gallery/nakshi-kantha-workshop.jpg",
     aspect: "aspect-square",
     objectPos: "object-bottom",
     colSpan: "",
   },
   {
     caption: "Community Gathering",
+    src: "/gallery/community-gathering.jpg",
     aspect: "aspect-[3/4]",
     objectPos: "object-center",
     colSpan: "",
   },
   {
     caption: "Street Food Carnival",
+    src: "/gallery/street-food-carnival.jpg",
     aspect: "aspect-[4/5]",
     objectPos: "object-center",
     colSpan: "",
   },
   {
     caption: "Heritage Craft Exhibition",
+    src: "/gallery/heritage-craft-exhibition.jpg",
     aspect: "aspect-[16/9]",
     objectPos: "object-top",
     colSpan: "sm:col-span-2 md:col-span-2",
@@ -124,7 +131,7 @@ export default function GalleryShowcase() {
             >
               <div className={`relative w-full ${item.aspect}`}>
                 <Image
-                  src="/Milanmela.png"
+                  src={item.src}
                   alt={item.caption}
                   fill
                   sizes="(max-width: 400px) 100vw, (max-width: 768px) 50vw, 33vw"
