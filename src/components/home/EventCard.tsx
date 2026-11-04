@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, MapPin, Clock, ArrowRight } from "lucide-react";
+import {
+  CalendarDays,
+  MapPin,
+  Clock,
+  ArrowRight,
+  Check,
+  UserRoundPlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
+import {
+  getJoinedEventIds,
+  invalidateJoinedEventIds,
+} from "@/lib/joined-events";
+import { toast } from "react-toastify";
 
 export interface EventCardProps {
   id?: string;
@@ -39,6 +52,10 @@ export default function EventCard({
   const eventId = id || _id;
   const rawSrc = (image || imageUrl || "").trim();
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [isJoined, setIsJoined] = useState<boolean | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
+  const email = session?.user?.email;
 
   const displaySrc = failedSrc === rawSrc || !rawSrc ? "/Milanmela.png" : rawSrc;
   const isExternal =
@@ -46,6 +63,59 @@ export default function EventCard({
     (displaySrc.startsWith("http://") ||
       displaySrc.startsWith("https://") ||
       displaySrc.startsWith("//"));
+
+  useEffect(() => {
+    if (!eventId || !email || isCompleted) return;
+
+    let cancelled = false;
+    getJoinedEventIds(email)
+      .then((eventIds) => {
+        if (!cancelled) setIsJoined(eventIds.has(eventId));
+      })
+      .catch((error: unknown) => {
+        console.error("Could not check event membership:", error);
+        if (!cancelled) {
+          setIsJoined(false);
+          toast.error("Could not check your joined events. Please try again.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [email, eventId, isCompleted]);
+
+  async function handleJoin() {
+    if (!eventId || !email || isJoining || isJoined !== false) return;
+
+    setIsJoining(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${encodeURIComponent(eventId)}/join`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        throw new Error(
+          result?.message || `Could not join event (${response.status}).`,
+        );
+      }
+
+      invalidateJoinedEventIds(email);
+      setIsJoined(true);
+      toast.success("You joined this event!");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Could not join this event.";
+      toast.error(message);
+    } finally {
+      setIsJoining(false);
+    }
+  }
 
   return (
     <Card className="group flex flex-col h-full overflow-hidden border border-[#C99A4B]/25 bg-white hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 rounded-2xl p-0">
@@ -118,7 +188,7 @@ export default function EventCard({
         </p>
 
         {/* CTA */}
-        <div className="pt-1">
+        <div className="pt-1 space-y-2">
           {eventId ? (
             <Link href={`/events/${eventId}`} className="block w-full">
               <Button
@@ -138,9 +208,63 @@ export default function EventCard({
               <ArrowRight className="size-3.5 ml-1" />
             </Button>
           )}
+
+          {eventId &&
+            (isCompleted ? (
+              <Button
+                type="button"
+                disabled
+                className="w-full h-9 rounded-full bg-[#65472D]/10 text-[#65472D] text-xs font-semibold"
+              >
+                Event Ended
+              </Button>
+            ) : isPending ? (
+              <Button
+                type="button"
+                disabled
+                className="w-full h-9 rounded-full bg-[#064B38]/10 text-[#064B38] text-xs font-semibold"
+              >
+                Checking account...
+              </Button>
+            ) : !email ? (
+              <Link href="/sing-in" className="block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-9 rounded-full border-[#C99A4B] text-[#064B38] text-xs font-semibold hover:bg-[#C99A4B]/15"
+                >
+                  Sign in to Join
+                  <UserRoundPlus className="size-3.5 ml-1" />
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleJoin}
+                disabled={isJoining || isJoined !== false}
+                variant={isJoined ? "outline" : "default"}
+                className={`w-full h-9 rounded-full text-xs font-semibold ${
+                  isJoined
+                    ? "border-[#064B38]/30 text-[#064B38]"
+                    : "bg-[#C83D2B] text-white hover:bg-[#C83D2B]/90"
+                }`}
+              >
+                {isJoining
+                  ? "Joining..."
+                  : isJoined
+                    ? "Joined"
+                    : isJoined === null
+                      ? "Checking..."
+                      : "Join Event"}
+                {isJoined ? (
+                  <Check className="size-3.5 ml-1" />
+                ) : (
+                  <UserRoundPlus className="size-3.5 ml-1" />
+                )}
+              </Button>
+            ))}
         </div>
       </CardContent>
     </Card>
   );
 }
-

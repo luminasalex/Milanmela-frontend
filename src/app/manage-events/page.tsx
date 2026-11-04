@@ -29,6 +29,7 @@ import {
     isCompletedEvent,
 } from "@/lib/events";
 import { toast } from "react-toastify";
+import JoinEventButton from "@/components/home/JoinEventButton";
 
 export default function ManageEventsPage() {
     // 1. Logged in user info
@@ -267,11 +268,11 @@ export default function ManageEventsPage() {
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="p-4 pt-0 flex items-center gap-2">
+                                        <div className="p-4 pt-0 grid grid-cols-2 gap-2">
                                             {/* View Details */}
                                             <Link
                                                 href={`/events/${event._id}`}
-                                                className="flex-1"
+                                                className="block"
                                             >
                                                 <Button
                                                     variant="outline"
@@ -282,9 +283,14 @@ export default function ManageEventsPage() {
                                                 </Button>
                                             </Link>
 
+                                            <JoinEventButton
+                                                eventId={event._id}
+                                                isCompleted={isCompleted}
+                                            />
+
                                             <Link
                                                 href={`/create-event?id=${encodeURIComponent(event._id)}`}
-                                                className="flex-1"
+                                                className="block"
                                             >
                                                 <Button
                                                     variant="outline"
