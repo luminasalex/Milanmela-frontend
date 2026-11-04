@@ -39,7 +39,7 @@ export default function EventGrid({ events }: { events: EventItem[] }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
           {visibleEvents.map((event) => {
-            const category = event.category || "Festival";
+            const category = event.category || "Other";
             const image = event.imageUrl || event.image || "/Milanmela.png";
 
             return (

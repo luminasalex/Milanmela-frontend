@@ -56,6 +56,11 @@ function formatTimeRange(start?: string, end?: string): string {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
+    Cleanup: "bg-[#064B38] text-white",
+    Plantation: "bg-[#2F855A] text-white",
+    Donation: "bg-[#C83D2B] text-white",
+    "Food Distribution": "bg-[#C99A4B] text-[#064B38]",
+    Education: "bg-[#3B6C9A] text-white",
     Festival: "bg-[#C83D2B] text-white",
     Cultural: "bg-[#064B38] text-white",
     Heritage: "bg-[#C99A4B] text-[#064B38]",
@@ -90,7 +95,7 @@ const EventDetailsPage = async ({
 
     if (!data || !data._id) notFound();
 
-    const category = data.category || "Festival";
+    const category = data.category || "Other";
     const isCompleted = isCompletedEvent(
         data.date,
         data.endTime,

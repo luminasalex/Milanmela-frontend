@@ -10,9 +10,12 @@ export default async function AllEventsPage() {
     // 1. Backend theke shorasori data fetch kora (Beginner-friendly way)
     let rawEvents = [];
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/upcoming`, {
             cache: "no-store", // notun event add korle jate sathe sathe update dekha jay
         });
+        if (!res.ok) {
+            throw new Error(`Could not load upcoming events (${res.status}).`);
+        }
         rawEvents = await res.json();
     } catch (error) {
         console.error("Events fetch korte problem hoyeche:", error);
@@ -44,7 +47,7 @@ export default async function AllEventsPage() {
                             <div className="h-px w-12 bg-[#C99A4B]" />
                             <span className="text-[#C99A4B]">✦</span>
                             <span className="text-xs font-bold tracking-widest text-[#C99A4B] uppercase">
-                                Milanmela Archive &amp; Schedule
+                                Milanmela Upcoming Events
                             </span>
                         </div>
 
@@ -52,12 +55,12 @@ export default async function AllEventsPage() {
                             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#064B38]"
                             style={{ fontFamily: "var(--font-serif)" }}
                         >
-                            All Cultural Events
+                            Upcoming Community Events
                         </h1>
 
                         <p className="mt-3 text-sm sm:text-base text-[#65472D] max-w-xl">
-                            Explore our comprehensive calendar of Bengali festivals, heritage
-                            fairs, classical arts, and community celebrations.
+                            Find community service events in your area and take part in
+                            making a positive difference.
                         </p>
                     </div>
 
@@ -79,10 +82,10 @@ export default async function AllEventsPage() {
                             className="text-2xl font-bold text-[#064B38] mb-2"
                             style={{ fontFamily: "var(--font-serif)" }}
                         >
-                            No Events Found Yet
+                            No Upcoming Events Yet
                         </h2>
                         <p className="text-sm text-[#65472D] mb-6">
-                            Be the first to create and publish a cultural gathering for our community!
+                            Be the first to create a community event and bring people together.
                         </p>
                         <Link href="/create-event">
                             <Button className="rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/85 px-6">

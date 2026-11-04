@@ -15,6 +15,11 @@ export interface EventItem {
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
+  Cleanup: "bg-[#064B38]/90 text-white",
+  Plantation: "bg-[#2F855A] text-white",
+  Donation: "bg-[#C83D2B]/90 text-white",
+  "Food Distribution": "bg-[#C99A4B] text-[#064B38]",
+  Education: "bg-[#3B6C9A] text-white",
   Festival: "bg-[#C83D2B]/90 text-white",
   Cultural: "bg-[#064B38]/90 text-white",
   Heritage: "bg-[#C99A4B] text-[#064B38]",

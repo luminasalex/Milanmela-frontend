@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Globe, Share2, Link2, Mail } from "lucide-react";
+import { Globe, Share2, Link2 } from "lucide-react";
 
 const quickLinks = [
   { label: "Home", href: "" },
@@ -10,7 +10,7 @@ const quickLinks = [
 ];
 
 const usefulLinks = [
-  { label: "Cultural Heritage", href: "#about-details" },
+  { label: "Community Impact", href: "#about-details" },
   { label: "Community Blog", href: "#" },
   { label: "Event Partners", href: "#" },
   { label: "Media Coverage", href: "#" },
@@ -21,7 +21,7 @@ const socialLinks = [
   { icon: Globe, label: "Facebook", href: "#" },
   { icon: Share2, label: "Instagram", href: "#" },
   { icon: Link2, label: "YouTube", href: "#" },
-  { icon: Mail, label: "X / Twitter", href: "#" },
+  { icon: null, label: "X", href: "#" },
 ];
 
 export default function Footer() {
@@ -56,7 +56,7 @@ export default function Footer() {
                   Milanmela
                 </p>
                 <p className="text-[10px] text-[#C99A4B] tracking-widest uppercase">
-                  Cultural Platform
+                  Community Service Platform
                 </p>
               </div>
             </div>
@@ -71,9 +71,8 @@ export default function Footer() {
 
             {/* Description */}
             <p className="text-xs text-[#F7F1E3]/60 leading-relaxed">
-              Milanmela is a premium Bengali cultural platform dedicated to
-              celebrating community, tradition, and the timeless heritage of
-              Bengali arts and culture.
+              Milanmela connects people with local volunteer opportunities and
+              community service events across Bangladesh.
             </p>
 
             {/* Social icons */}
@@ -85,7 +84,17 @@ export default function Footer() {
                   aria-label={label}
                   className="flex items-center justify-center size-9 rounded-full border border-[#C99A4B]/30 text-[#C99A4B] hover:bg-[#C99A4B] hover:text-[#064B38] hover:border-[#C99A4B] transition-all"
                 >
-                  <Icon className="size-4" />
+                  {Icon ? (
+                    <Icon className="size-4" />
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      className="size-4 fill-current"
+                    >
+                      <path d="M18.9 1.15h3.68l-8.04 9.19L24 23.22h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.8h2.04L6.49 3.3H4.3z" />
+                    </svg>
+                  )}
                 </a>
               ))}
             </div>
@@ -161,7 +170,7 @@ export default function Footer() {
         <div className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#C99A4B]/20 pt-8">
           <p className="text-xs text-[#F7F1E3]/50 text-center sm:text-left">
             © {new Date().getFullYear()} Milanmela. All rights reserved. Crafted with{" "}
-            <span className="text-[#C83D2B]">♥</span> for Bengali culture.
+            <span className="text-[#C83D2B]">♥</span> for our community.
           </p>
 
           <div className="flex items-center gap-1.5">

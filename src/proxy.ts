@@ -5,7 +5,14 @@ import { auth } from '@/lib/auth'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (pathname === '/' || pathname === '/sing-in' || pathname === '/sing-up') {
+  const isPublicRoute =
+    pathname === '/' ||
+    pathname === '/sing-in' ||
+    pathname === '/sing-up' ||
+    pathname === '/events' ||
+    /^\/events\/[^/]+$/.test(pathname);
+
+  if (isPublicRoute) {
     return NextResponse.next()
   }
 

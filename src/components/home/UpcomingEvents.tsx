@@ -14,14 +14,11 @@ import {
   formatTimeRange,
   getEventCategories,
   isCompletedEvent,
-  isUpcomingEvent,
   sortEventsByDate,
 } from "@/lib/events";
 
-const TOP_EVENTS = 6;
-
 function toCardProps(event: EventItem): EventCardProps {
-  const category = event.category || "Festival";
+  const category = event.category || "Other";
   const displayImage = event.imageUrl || event.image || "/Milanmela.png";
 
   return {
@@ -50,15 +47,14 @@ export default function UpcomingEvents() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, { cache: "no-store" })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/upcoming?limit=6`, {
+      cache: "no-store",
+    })
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
         const validData = Array.isArray(data) ? data : [];
-        const upcomingEvents = validData.filter(
-          (event: EventItem) => isUpcomingEvent(event),
-        );
-        setEvents(sortEventsByDate(upcomingEvents).map(toCardProps));
+        setEvents(sortEventsByDate(validData).map(toCardProps));
         setLoading(false);
       })
       .catch((err) => {
@@ -72,10 +68,7 @@ export default function UpcomingEvents() {
   }, []);
 
   const categories = getEventCategories(events);
-  const visibleEvents = filterEventsByCategory(events, selectedCategory).slice(
-    0,
-    TOP_EVENTS,
-  );
+  const visibleEvents = filterEventsByCategory(events, selectedCategory);
 
   return (
     <section

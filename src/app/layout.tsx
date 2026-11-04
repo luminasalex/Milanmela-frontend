@@ -35,21 +35,22 @@ const notoSerifBengali = Noto_Serif_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: "Milanmela — Premium Bengali Cultural Platform",
+  title: "Milanmela — Community Service Events",
   description:
-    "Milanmela is a premium Bengali cultural event platform celebrating festivals, community gatherings, and the rich heritage of Bengali tradition. Bringing people together through culture.",
+    "Discover, create, and join local community service events with Milanmela.",
   keywords: [
     "Milanmela",
-    "Bengali culture",
-    "cultural events",
-    "Bengali festivals",
-    "community gatherings",
-    "Bangladeshi culture",
+    "community service",
+    "volunteer events",
+    "local events",
+    "cleanup",
+    "plantation",
+    "donation",
   ],
   openGraph: {
-    title: "Milanmela — Where Culture Meets Community",
+    title: "Milanmela — Community Service Events",
     description:
-      "Experience the beauty of Bengali culture through curated events, festivals, and community celebrations.",
+      "Find local volunteer opportunities, create community events, and make a difference together.",
     siteName: "Milanmela",
     locale: "en_US",
     type: "website",

@@ -6,10 +6,10 @@ import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const highlights = [
-  "Rooted in Bengali folk-art tradition and cultural heritage",
-  "Connecting diaspora communities across cities and generations",
-  "Curating authentic cultural events, performances, and festivals",
-  "Preserving collective memories through our gallery archive",
+  "Create local cleanup, plantation, donation, and education events",
+  "Connect neighbors who want to support their community",
+  "Join upcoming events and keep track of your commitments",
+  "Manage your events and update their details at any time",
 ];
 
 export default function AboutSection() {
@@ -62,7 +62,7 @@ export default function AboutSection() {
                 <p className="text-3xl font-bold" style={{ fontFamily: "var(--font-serif)" }}>
                   8+
                 </p>
-                <p className="text-xs text-[#C99A4B] tracking-wide mt-0.5">Years of Culture</p>
+                <p className="text-xs text-[#C99A4B] tracking-wide mt-0.5">                Neighbors in Action</p>
               </motion.div>
             </div>
           </motion.div>
@@ -88,9 +88,9 @@ export default function AboutSection() {
               className="text-3xl sm:text-4xl font-bold text-[#064B38] leading-tight"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              A Cultural Home for
+              A Community Space for
               <br />
-              <span className="text-[#C83D2B]">Every Bengali Heart</span>
+              <span className="text-[#C83D2B]">People Ready to Help</span>
             </h2>
 
             {/* Bengali tagline */}
@@ -98,20 +98,18 @@ export default function AboutSection() {
               className="text-base text-[#064B38]/70 italic"
               style={{ fontFamily: "var(--font-bengali)" }}
             >
-              সংস্কৃতির ছোঁয়ায়, মিলনের আয়োজনে
+              একসাথে কাজ করি, সুন্দর সমাজ গড়ি
             </p>
 
             {/* Body */}
             <p className="text-[#65472D] leading-relaxed text-sm">
-              Milanmela was born from a vision to celebrate Bengali culture in all its
-              vibrancy — music, dance, art, food, and the stories that bind us
-              together. We create spaces where tradition meets modernity, and where
-              every community member can find belonging.
+              Milanmela helps people turn good intentions into local action.
+              Discover community service events, find opportunities to volunteer,
+              or create an event that brings neighbors together.
             </p>
             <p className="text-[#65472D] leading-relaxed text-sm">
-              From intimate cultural evenings to grand festival celebrations, Milanmela
-              is your trusted companion in keeping Bengali heritage alive across
-              generations.
+              Whether it is a neighborhood cleanup, a tree-planting day, or a
+              donation drive, every event gives people a simple way to contribute.
             </p>
 
             {/* Highlights */}

@@ -69,8 +69,8 @@ export default function NewsletterSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-[#F7F1E3]/75 text-base mb-10 max-w-lg mx-auto leading-relaxed"
         >
-          Be part of our community and never miss a cultural celebration or
-          upcoming event. Join thousands of Bengali culture enthusiasts today.
+          Get updates about new volunteer opportunities and community projects
+          happening near you.
         </motion.p>
 
         {/* Form */}

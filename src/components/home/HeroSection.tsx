@@ -61,7 +61,7 @@ export default function HeroSection() {
             >
               <span className="size-2 rounded-full bg-[#C83D2B] animate-pulse" />
               <span className="text-xs font-semibold tracking-widest text-[#65472D] uppercase">
-                Cultural Platform
+                Community Service Platform
               </span>
             </motion.div>
 
@@ -74,9 +74,9 @@ export default function HeroSection() {
               className="text-4xl sm:text-5xl xl:text-6xl font-bold leading-tight text-[#064B38]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              Where Culture{" "}
+              Where People{" "}
               <span className="relative inline-block">
-                Meets
+                Take Action
                 <span
                   className="absolute -bottom-1 left-0 w-full h-1 rounded-full bg-[#C99A4B]"
                 />
@@ -93,7 +93,7 @@ export default function HeroSection() {
               className="text-lg text-[#064B38]/70"
               style={{ fontFamily: "var(--font-bengali)" }}
             >
-              সংস্কৃতির ছোঁয়ায়, মিলনের আয়োজনে।
+              একসাথে কাজ করি, সুন্দর সমাজ গড়ি।
             </motion.p>
 
             {/* Description */}
@@ -104,10 +104,9 @@ export default function HeroSection() {
               custom={3}
               className="max-w-lg text-base leading-relaxed text-[#65472D]"
             >
-              Milanmela is a premium Bengali cultural platform celebrating
-              festivals, community gatherings, and the rich heritage of Bengali
-              tradition — bringing people together through art, music, and shared
-              memories.
+              Discover local cleanup, plantation, donation, and education
+              initiatives. Create an event, invite your neighbors, and make a
+              practical difference together.
             </motion.p>
 
             {/* CTAs */}
@@ -146,9 +145,9 @@ export default function HeroSection() {
               className="flex flex-wrap gap-8 pt-4 border-t border-[#C99A4B]/30 mt-2"
             >
               {[
-                { value: "50+", label: "Events Hosted" },
-                { value: "10K+", label: "Community Members" },
-                { value: "8 Years", label: "Cultural Legacy" },
+                { value: "Local", label: "Events Near You" },
+                { value: "Open", label: "Everyone Can Join" },
+                { value: "Together", label: "Stronger Communities" },
               ].map((stat) => (
                 <div key={stat.label} className="flex flex-col">
                   <span
@@ -179,7 +178,7 @@ export default function HeroSection() {
             <div className="relative w-[300px] h-[300px] md:w-[420px] md:h-[420px] rounded-full overflow-hidden border-4 border-[#C99A4B]/50 shadow-2xl">
               <Image
                 src="/Milanmela.png"
-                alt="Milanmela — Bengali Cultural Platform"
+                alt="Milanmela community service events"
                 fill
                 className="object-cover object-center"
                 priority

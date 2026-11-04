@@ -10,9 +10,9 @@ const features = [
     iconBg: "bg-[#064B38]/10",
     iconColor: "text-[#064B38]",
     accentColor: "border-t-[#064B38]",
-    title: "Cultural Gatherings",
+    title: "Community Action",
     description:
-      "Experience the warmth of Bengali culture through our meticulously curated gatherings — where traditions, stories, and communities converge.",
+      "Bring neighbors together for local cleanups, tree planting, donations, and other helpful projects.",
     badge: "Community",
     badgeColor: "bg-[#064B38]/10 text-[#064B38]",
   },
@@ -23,7 +23,7 @@ const features = [
     accentColor: "border-t-[#C83D2B]",
     title: "Upcoming Events",
     description:
-      "Stay ahead of every celebration. Discover curated cultural events, festivals, and performances tailored for the community.",
+      "Find upcoming volunteer activities near you and join the ones that matter to your community.",
     badge: "Events",
     badgeColor: "bg-[#C83D2B]/10 text-[#C83D2B]",
   },
@@ -34,7 +34,7 @@ const features = [
     accentColor: "border-t-[#C99A4B]",
     title: "Memories & Showcases",
     description:
-      "Relive beautiful moments from past events through our curated gallery — a visual journey through Bengali cultural milestones.",
+      "Share the impact of past community service events and inspire others to get involved.",
     badge: "Gallery",
     badgeColor: "bg-[#C99A4B]/15 text-[#65472D]",
   },
@@ -78,7 +78,7 @@ export default function PlatformFeatures() {
           >
             Bringing People Together
             <br />
-            <span className="text-[#C83D2B]">Through Culture</span>
+            <span className="text-[#C83D2B]">Through Service</span>
           </motion.h2>
 
           <motion.p
@@ -88,8 +88,8 @@ export default function PlatformFeatures() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="max-w-xl mx-auto text-[#65472D] text-base leading-relaxed"
           >
-            Milanmela is more than a platform — it&apos;s a living celebration of
-            Bengali identity, crafted for a community that thrives on togetherness.
+            Milanmela makes it simple to organize local initiatives, find
+            volunteers, and turn shared ideas into helpful action.
           </motion.p>
         </div>
 

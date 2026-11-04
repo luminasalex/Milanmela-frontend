@@ -17,6 +17,7 @@ import {
     X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // react-toastify v11 hole ei line lagbe na
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,11 @@ import EventCard from "@/components/home/EventCard";
 import { getAuthToken } from "@/lib/api-auth";
 
 const CATEGORIES = [
+    { label: "Cleanup", value: "Cleanup" },
+    { label: "Plantation", value: "Plantation" },
+    { label: "Donation", value: "Donation" },
+    { label: "Food Distribution", value: "Food Distribution" },
+    { label: "Education", value: "Education" },
     { label: "Festival", value: "Festival" },
     { label: "Cultural", value: "Cultural" },
     { label: "Heritage", value: "Heritage" },
@@ -33,6 +39,11 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
+    Cleanup: "bg-[#064B38]/90 text-white",
+    Plantation: "bg-[#2F855A] text-white",
+    Donation: "bg-[#C83D2B]/90 text-white",
+    "Food Distribution": "bg-[#C99A4B] text-[#064B38]",
+    Education: "bg-[#3B6C9A] text-white",
     Festival: "bg-[#C83D2B]/90 text-white",
     Cultural: "bg-[#064B38]/90 text-white",
     Heritage: "bg-[#C99A4B] text-[#064B38]",
@@ -115,23 +126,17 @@ function isEventCompleted(date: string, endTime: string): boolean {
     return endDateTime.getTime() < Date.now();
 }
 
-// Ajker date "YYYY-MM-DD" format e return kore (local time)
-function getTodayISO(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
+function getTomorrowISO(): string {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
+    const day = String(tomorrow.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
 
-// Date ta past kina check kore
-function isPastDate(dateStr: string): boolean {
-    if (!dateStr) return false;
-    const selected = new Date(dateStr);
-    if (isNaN(selected.getTime())) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selected < today;
+function isFutureDate(dateStr: string): boolean {
+    return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && dateStr >= getTomorrowISO();
 }
 
 // Async helper: validate that an image URL actually loads (with 2.5s timeout)
@@ -177,6 +182,7 @@ async function saveEvent(data: EventFormData) {
 }
 
 export default function CreateEventPage() {
+    const router = useRouter();
     const [form, setForm] = useState<EventFormData>(initialForm);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -248,8 +254,9 @@ export default function CreateEventPage() {
         form.endTime.trim() !== "" &&
         form.location.trim() !== "" &&
         form.category.trim() !== "" &&
+        form.imageUrl.trim() !== "" &&
         form.description.trim() !== "" &&
-        (!isPastDate(form.date) || Boolean(editingEventId));
+        isFutureDate(form.date);
 
     function handleChange(
         e: React.ChangeEvent<
@@ -279,10 +286,9 @@ export default function CreateEventPage() {
         e.preventDefault();
         if (!isFormValid || isSubmitting) return;
 
-        // Past date safety check
-        if (!editingEventId && isPastDate(form.date)) {
+        if (!isFutureDate(form.date)) {
             const msg =
-                "You cannot create an event in the past. Please select today or a future date.";
+                "Please select a date in the future.";
             setSubmitError(msg);
             toast.error(msg);
             return;
@@ -318,11 +324,14 @@ export default function CreateEventPage() {
                     throw new Error(`Server returned error: ${res.status}`);
                 }
                 toast.success("Event updated successfully!");
+                router.push("/manage-events");
             } else {
                 await saveEvent(form);
                 toast.success("Event created successfully! 🎉");
                 setForm(initialForm);
+                router.push("/events");
             }
+            router.refresh();
             setImageError(false);
         } catch (err) {
             const message =
@@ -383,7 +392,7 @@ export default function CreateEventPage() {
                         <div className="h-px w-14 bg-gradient-to-r from-transparent to-[#C99A4B]" />
                         <span className="text-[#C99A4B]">✦</span>
                         <span className="text-xs font-bold tracking-widest text-[#C99A4B] uppercase">
-                            {editingEventId ? "Update Your Cultural Gathering" : "Host a Cultural Gathering"}
+                            {editingEventId ? "Update Your Community Event" : "Create a Community Event"}
                         </span>
                         <span className="text-[#C99A4B]">✦</span>
                         <div className="h-px w-14 bg-gradient-to-l from-transparent to-[#C99A4B]" />
@@ -450,7 +459,7 @@ export default function CreateEventPage() {
                                         className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#064B38]"
                                     >
                                         <ImageIcon className="size-3.5 text-[#C99A4B]" />
-                                        Cover Image URL
+                                        Cover Image URL <span className="text-[#C83D2B]">*</span>
                                     </label>
                                     <span className="text-[10px] lowercase text-[#65472D]/60">
                                         paste a public image link
@@ -483,6 +492,7 @@ export default function CreateEventPage() {
                                                 id="imageUrl"
                                                 name="imageUrl"
                                                 type="url"
+                                                required
                                                 value={form.imageUrl ?? ""}
                                                 onChange={handleChange}
                                                 placeholder="https://example.com/event-image.jpg"
@@ -552,14 +562,14 @@ export default function CreateEventPage() {
                                     name="date"
                                     type="date"
                                     required
-                                    min={getTodayISO()}
+                                    min={getTomorrowISO()}
                                     value={form.date ?? ""}
                                     onChange={handleChange}
                                     className="w-full h-11 px-4 rounded-xl border border-[#C99A4B]/35 bg-[#F7F1E3]/50 text-sm text-[#064B38] focus:outline-none focus:ring-2 focus:ring-[#064B38]/30 focus:border-[#064B38] transition-all"
                                 />
-                                {form.date && isPastDate(form.date) && (
+                                {form.date && !isFutureDate(form.date) && (
                                     <p className="text-[11px] text-[#C83D2B] flex items-center gap-1.5">
-                                        <span>⚠</span> Past date is not allowed. Please select today or a future date.
+                                        <span>⚠</span> Please select a date in the future.
                                     </p>
                                 )}
                             </div>

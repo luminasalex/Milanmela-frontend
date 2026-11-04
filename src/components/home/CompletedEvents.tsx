@@ -20,7 +20,7 @@ import {
 const RECENT_EVENTS = 6;
 
 function toCardProps(event: EventItem): EventCardProps {
-  const category = event.category || "Festival";
+  const category = event.category || "Other";
   const displayImage = event.imageUrl || event.image || "/Milanmela.png";
 
   return {
