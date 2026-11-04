@@ -44,8 +44,8 @@ export default function AboutSection() {
               {/* Image */}
               <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/Milanmela.png"
-                  alt="About Milanmela"
+                  src="/about-community.jpg"
+                  alt="Neighbors celebrating together at a community event"
                   fill
                   className="object-cover object-center"
                 />
