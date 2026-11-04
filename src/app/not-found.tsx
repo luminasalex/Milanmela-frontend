@@ -101,7 +101,7 @@ export default function NotFound() {
         {/* Footer */}
         <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#65472D]/60">
           <Compass className="size-3.5" />
-          <span>Don't worry, every great journey has a wrong turn.</span>
+          <span>Don&apos;t worry, every great journey has a wrong turn.</span>
         </div>
 
       </div>
