@@ -32,5 +32,12 @@ Configure the client and backend with the same `MONGODB_URI`,
 client to the backend URL. The client also needs `GOOGLE_CLIENT_ID` and
 `GOOGLE_CLIENT_SECRET` if Google sign-in is enabled.
 
+For production, set `BETTER_AUTH_URL` in both deployments to the frontend's
+public origin (for example, `https://milanmela-frontend.vercel.app`), and use
+the same `BETTER_AUTH_SECRET` and `MONGODB_URI` in both. Set the frontend's
+`NEXT_PUBLIC_API_URL` to the backend's public origin (for example,
+`https://milanmela-backend.vercel.app`). Redeploy both projects after changing
+these variables, then sign in again.
+
 Start the backend with `node index.js`, then start the client with
 `npm run dev` from `client-server`.

@@ -182,19 +182,26 @@ async function saveEvent(data: EventFormData) {
 }
 
 async function getApiErrorMessage(response: Response): Promise<string> {
-    if (response.status === 401) {
-        return "Your session is no longer valid. Sign in again and retry.";
-    }
-
     const result: unknown = await response.json().catch(() => null);
-    if (
+    const serverMessage =
         typeof result === "object" &&
         result !== null &&
         "message" in result &&
         typeof result.message === "string"
-    ) {
-        return result.message;
+            ? result.message
+            : null;
+
+    if (response.status === 401) {
+        if (serverMessage === "An auth token is required") {
+            return "Your sign-in session has expired. Sign in again and retry.";
+        }
+        if (serverMessage === "The auth token is invalid") {
+            return "The production server rejected your sign-in token. Check that BETTER_AUTH_URL, BETTER_AUTH_SECRET, and MONGODB_URI match between the frontend and backend deployments, redeploy both, then sign in again.";
+        }
+        return serverMessage || "Your sign-in session is invalid. Sign in again and retry.";
     }
+
+    if (serverMessage) return serverMessage;
 
     return `Server returned error: ${response.status}`;
 }
