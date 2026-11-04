@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -95,7 +94,7 @@ export default function JoinEventButton({
       <Button
         type="button"
         disabled
-        className="w-full h-9 rounded-full bg-[#65472D]/10 text-[#65472D] text-xs font-semibold"
+        className="w-full h-9 rounded-full bg-[#064B38]/15 text-[#064B38] text-xs font-semibold"
       >
         Event Ended
       </Button>
@@ -107,7 +106,7 @@ export default function JoinEventButton({
       <Button
         type="button"
         disabled
-        className="w-full h-9 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold"
+        className="w-full h-9 rounded-full bg-[#064B38]/15 text-[#064B38] text-xs font-semibold"
       >
         Checking account...
       </Button>
@@ -120,7 +119,7 @@ export default function JoinEventButton({
         <Button
           type="button"
           variant="outline"
-          className="w-full h-9 rounded-full border-zinc-300 text-zinc-700 text-xs font-semibold hover:bg-zinc-100"
+          className="w-full h-9 rounded-full border-[#C99A4B] text-[#064B38] text-xs font-semibold hover:bg-[#C99A4B]/15"
         >
           Sign in to Join
           <UserRoundPlus className="size-3.5 ml-1" />
@@ -131,24 +130,25 @@ export default function JoinEventButton({
 
   if (isJoined) {
     return (
-      <Badge
-        variant="outline"
-        className="h-9 w-full justify-center rounded-full border-zinc-300 bg-zinc-100 text-zinc-600 text-xs font-semibold"
+      <Button
+        type="button"
+        disabled
+        className="w-full h-9 rounded-full bg-[#064B38] text-[#F7F1E3] text-xs font-semibold"
       >
         <Check className="size-3.5" />
         Joined
-      </Badge>
+      </Button>
     );
   }
 
   return (
     <>
-      {/* ✅ NEW: Ash/zinc primary button */}
+      {/* ✅ Primary join button — app accent red */}
       <Button
         type="button"
         onClick={() => setIsConfirmationOpen(true)}
         disabled={isJoining || isJoined !== false}
-        className="w-full h-9 rounded-full bg-zinc-700 text-white text-xs font-semibold hover:bg-zinc-800 shadow-sm hover:shadow-md transition-all"
+        className="w-full h-9 rounded-full bg-[#C83D2B] text-white text-xs font-semibold hover:bg-[#C83D2B]/90 shadow-sm hover:shadow-md transition-all"
       >
         {isJoined === null ? "Checking..." : "Join Event"}
         <UserRoundPlus className="size-3.5 ml-1" />
@@ -160,28 +160,27 @@ export default function JoinEventButton({
           if (!isJoining) setIsConfirmationOpen(open);
         }}
       >
-        <AlertDialogContent className="border border-zinc-200 bg-[#F7F1E3]">
+        <AlertDialogContent className="border border-[#C99A4B]/30 bg-[#F7F1E3]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-zinc-800">
+            <AlertDialogTitle className="text-[#064B38]">
               Join this event?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-500">
+            <AlertDialogDescription className="text-[#65472D]">
               Confirm to add this event to your Joined Events list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={isJoining}
-              className="rounded-full border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+              className="rounded-full border-[#C99A4B] text-[#064B38] hover:bg-[#C99A4B]/15"
             >
               Cancel
             </AlertDialogCancel>
-            {/* ✅ NEW: Ash confirm button */}
             <Button
               type="button"
               onClick={handleJoin}
               disabled={isJoining}
-              className="rounded-full bg-zinc-700 text-white hover:bg-zinc-800 shadow-sm"
+              className="rounded-full bg-[#C83D2B] text-white hover:bg-[#C83D2B]/90 shadow-sm"
             >
               {isJoining ? "Joining..." : "Confirm Join"}
             </Button>

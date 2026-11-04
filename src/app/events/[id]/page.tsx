@@ -8,6 +8,8 @@ import {
     Tag,
 } from "lucide-react";
 import Image from "next/image";
+import JoinEventButton from "@/components/home/JoinEventButton";
+import { isCompletedEvent } from "@/lib/events";
 
 interface EventItem {
     _id: string;
@@ -20,6 +22,7 @@ interface EventItem {
     description?: string;
     imageUrl?: string;
     image?: string;
+    isCompleted?: boolean;
 }
 
 // ---------- Helpers (same as AllEventsPage) ----------
@@ -88,6 +91,11 @@ const EventDetailsPage = async ({
     if (!data || !data._id) notFound();
 
     const category = data.category || "Festival";
+    const isCompleted = isCompletedEvent(
+        data.date,
+        data.endTime,
+        data.isCompleted,
+    );
     const categoryColor =
         CATEGORY_COLORS[category] || "bg-[#064B38]/10 text-[#064B38]";
     const displayImage =
@@ -203,10 +211,16 @@ const EventDetailsPage = async ({
                             Be part of this celebration
                         </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
+                        <div className="sm:w-48">
+                            <JoinEventButton
+                                eventId={data._id}
+                                isCompleted={isCompleted}
+                            />
+                        </div>
                         <Link
                             href="/events"
-                            className="inline-flex items-center gap-2 rounded-full bg-transparent border border-[#F7F1E3]/30 hover:bg-[#F7F1E3]/10 text-[#F7F1E3] text-sm font-semibold px-5 py-2.5 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-full bg-transparent border border-[#F7F1E3]/30 hover:bg-[#F7F1E3]/10 text-[#F7F1E3] text-sm font-semibold px-5 py-2.5 transition-colors justify-center"
                         >
                             More Events
                         </Link>
