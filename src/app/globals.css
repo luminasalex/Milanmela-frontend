@@ -1,3 +1,60 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+.theme-toggle-sun {
+  display: none;
+}
+
+html.dark .theme-toggle-moon {
+  display: none;
+}
+
+html.dark .theme-toggle-sun {
+  display: block;
+}
+
+html.dark body {
+  background-color: #101915 !important;
+  color: #e8eee9;
+}
+
+html.dark [class*="bg-[#F7F1E3]"] {
+  background-color: #14221c !important;
+}
+
+html.dark [class*="bg-white"] {
+  background-color: #1d2b24 !important;
+}
+
+html.dark [class*="bg-[#064B38]"] {
+  background-color: #17664d !important;
+}
+
+html.dark [class*="text-[#064B38]"] {
+  color: #e8eee9 !important;
+}
+
+html.dark [class*="text-[#65472D]"] {
+  color: #c8d0ca !important;
+}
+
+html.dark [class*="text-[#F7F1E3]"] {
+  color: #f7f1e3 !important;
+}
+
+html.dark [class*="border-[#064B38]"] {
+  border-color: #7d9b8a !important;
+}
+
+html.dark [class*="bg-[#064B38]"] [class*="text-[#F7F1E3]"] {
+  color: #f7f1e3 !important;
+}

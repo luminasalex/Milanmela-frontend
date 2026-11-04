@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,6 +12,8 @@ import {
   Calendar,
   PlusCircle,
   Sparkles,
+  Moon,
+  Sun,
 } from "lucide-react";
 import {
   Avatar,
@@ -39,6 +41,21 @@ export default function Navbar() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldUseDark = savedTheme ? savedTheme === "dark" : prefersDark;
+
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+  }, []);
+
+  function toggleTheme() {
+    const nextIsDark = !document.documentElement.classList.contains("dark");
+
+    document.documentElement.classList.toggle("dark", nextIsDark);
+    window.localStorage.setItem("theme", nextIsDark ? "dark" : "light");
+  }
 
   async function handleSignOut() {
     try {
@@ -111,6 +128,17 @@ export default function Navbar() {
 
           {/* Right: Avatar + Mobile Toggle */}
           <div className="flex items-center gap-3">
+            <Link
+              href="#"
+              onClick={toggleTheme}
+              aria-label="Toggle color theme"
+              title="Toggle color theme"
+              className="theme-toggle flex size-9 items-center justify-center rounded-full border border-[#C99A4B]/40 text-[#064B38] transition hover:border-[#C99A4B] hover:bg-[#064B38]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#064B38]/40"
+            >
+              <Moon className="theme-toggle-moon size-4" />
+              <Sun className="theme-toggle-sun size-4" />
+            </Link>
+
             {!isPending && session?.user ? (
               /* Logged In User State with Dropdown Menu */
               <DropdownMenu>
