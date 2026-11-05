@@ -92,28 +92,28 @@ export default function Navbar() {
     <header
       lang={activeLanguage}
       style={{ fontFamily: isBengali ? "var(--font-bengali)" : "inherit" }}
-      className="sticky top-0 z-50 w-full border-b border-[#C99A4B]/30 bg-[#F7F1E3]/95 backdrop-blur-md"
+      className="sticky top-0 z-50 w-full border-b border-[#C99A4B]/30 bg-[#F7F1E3]/95 shadow-sm backdrop-blur-md"
     >
       {/* Golden decorative top stripe */}
       <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#C99A4B] to-transparent" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between lg:h-20">
+        <div className="flex h-16 items-center justify-between gap-3 lg:h-[76px]">
           {/* Logo + Brand */}
           <Link
             href="/"
-            className="flex items-center gap-3 group"
+            className="flex min-w-0 items-center gap-2.5 group sm:gap-3"
             aria-label={isBengali ? "মিলনমেলা হোম" : "Milanmela Home"}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Milanmela.png"
               alt="Milanmela Logo"
-              className="size-10 lg:size-12 rounded-full border-2 border-[#C99A4B]/50 object-cover shadow-sm transition-transform group-hover:scale-105"
+              className="size-10 shrink-0 rounded-full border-2 border-[#C99A4B]/50 object-cover shadow-sm transition-transform group-hover:scale-105 lg:size-11"
             />
             <div className="flex flex-col leading-tight">
               <span
-                className="text-xl lg:text-2xl font-bold tracking-wide text-[#064B38]"
+                className="text-lg font-bold tracking-wide text-[#064B38] sm:text-xl lg:text-2xl"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 Milanmela
@@ -127,12 +127,12 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden items-center gap-7 lg:flex xl:gap-9">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative text-sm font-medium text-[#064B38] transition-colors hover:text-[#C83D2B] after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-[#C83D2B] after:transition-all hover:after:w-full"
+                className="relative whitespace-nowrap text-sm font-medium text-[#064B38] transition-colors hover:text-[#C83D2B] after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-[#C83D2B] after:transition-all hover:after:w-full"
               >
                 {link.label[activeLanguage]}
               </Link>
@@ -140,41 +140,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right: Avatar + Mobile Toggle */}
-          <div className="flex items-center gap-3">
-            {isHomePage && (
-              <div
-                role="group"
-                aria-label={isBengali ? "ভাষা নির্বাচন করুন" : "Choose language"}
-                className="flex items-center rounded-full border border-[#C99A4B]/40 bg-white p-0.5"
-              >
-                {(["bn", "en"] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setLanguage(option)}
-                    aria-pressed={language === option}
-                    className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
-                      language === option
-                        ? "bg-[#064B38] text-[#F7F1E3]"
-                        : "text-[#064B38] hover:bg-[#064B38]/10"
-                    }`}
-                  >
-                    {option === "bn" ? "বাংলা" : "EN"}
-                  </button>
-                ))}
-              </div>
-            )}
-            <Link
-              href="#"
-              onClick={toggleTheme}
-              aria-label={isBengali ? "রঙের থিম বদলান" : "Toggle color theme"}
-              title={isBengali ? "রঙের থিম বদলান" : "Toggle color theme"}
-              className="theme-toggle flex size-9 items-center justify-center rounded-full border border-[#C99A4B]/40 text-[#064B38] transition hover:border-[#C99A4B] hover:bg-[#064B38]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#064B38]/40"
-            >
-              <Moon className="theme-toggle-moon size-4" />
-              <Sun className="theme-toggle-sun size-4" />
-            </Link>
-
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
             {!isPending && session?.user ? (
               /* Logged In User State with Dropdown Menu */
               <DropdownMenu>
@@ -295,7 +261,7 @@ export default function Navbar() {
               <Link
                 href="/sing-in"
                 aria-label={isBengali ? "ব্যবহারকারী সাইন ইন" : "User sign in"}
-                className="flex items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer"
+                className="hidden items-center gap-2 rounded-full border border-[#C99A4B]/40 bg-white px-3 py-1.5 shadow-sm transition hover:border-[#C99A4B] hover:shadow-md cursor-pointer lg:flex"
               >
                 <Avatar size="sm" className="border border-[#C99A4B]/60">
                   <AvatarFallback className="bg-[#064B38] text-[#F7F1E3]">
@@ -320,7 +286,10 @@ export default function Navbar() {
                     : "Open menu"
               }
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden flex items-center justify-center size-9 rounded-lg border border-[#C99A4B]/40 text-[#064B38] hover:bg-[#064B38]/5 transition"
+              type="button"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#C99A4B]/45 bg-[#064B38] text-[#C99A4B] shadow-sm transition hover:border-[#C99A4B] hover:bg-[#064B38]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C99A4B]/70"
             >
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
@@ -330,21 +299,75 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#C99A4B]/20 bg-[#F7F1E3] px-4 py-4">
-          <nav className="flex flex-col gap-3">
+        <div
+          id="mobile-navigation"
+          className="absolute left-3 right-3 top-[calc(100%-1px)] z-50 mx-auto max-w-7xl rounded-2xl border border-[#C99A4B]/35 bg-[#F7F1E3] p-3 shadow-xl ring-1 ring-black/5 sm:left-auto sm:right-6 sm:w-80 lg:right-[max(calc((100vw-80rem)/2+2rem),2rem)]"
+        >
+          <nav className="flex flex-col">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center py-2 text-sm font-medium text-[#064B38] border-b border-[#C99A4B]/20 hover:text-[#C83D2B] transition-colors last:border-0"
+                className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold text-[#064B38] transition-colors hover:bg-white/80 hover:text-[#C83D2B]"
               >
                 {link.label[activeLanguage]}
+                <span aria-hidden="true" className="text-[#C99A4B]">›</span>
               </Link>
             ))}
 
+            <div className="mt-2 border-t border-[#C99A4B]/25 pt-3">
+              <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#98743E]">
+                {isBengali ? "পছন্দসমূহ" : "Preferences"}
+              </p>
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-white/70 px-3 py-2.5">
+                <span className="text-sm font-semibold text-[#064B38]">
+                  {isBengali ? "ভাষা" : "Language"}
+                </span>
+                {isHomePage ? (
+                  <div
+                    role="group"
+                    aria-label={isBengali ? "ভাষা নির্বাচন করুন" : "Choose language"}
+                    className="flex h-9 items-center gap-0.5 rounded-full border border-[#C99A4B]/45 bg-[#EDE5D5] p-1"
+                  >
+                    {(["bn", "en"] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setLanguage(option)}
+                        aria-pressed={language === option}
+                        className={`flex h-7 min-w-9 items-center justify-center rounded-full px-2.5 text-[11px] font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C99A4B] ${
+                          language === option
+                            ? "bg-[#064B38] text-[#F7F1E3] shadow-sm"
+                            : "text-[#064B38]/75 hover:bg-white/70 hover:text-[#064B38]"
+                        }`}
+                      >
+                        {option === "bn" ? "বাংলা" : "EN"}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-xs font-medium text-[#65472D]">
+                    {isBengali ? "বাংলা" : "English"}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={isBengali ? "রঙের থিম বদলান" : "Toggle color theme"}
+                className="mt-2 flex w-full items-center justify-between rounded-xl bg-white/70 px-3 py-2.5 text-sm font-semibold text-[#064B38] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C99A4B]/70"
+              >
+                <span>{isBengali ? "রঙের থিম" : "Color theme"}</span>
+                <span className="theme-toggle flex size-8 items-center justify-center rounded-full bg-[#064B38] text-[#C99A4B]">
+                  <Moon className="theme-toggle-moon size-4" />
+                  <Sun className="theme-toggle-sun size-4" />
+                </span>
+              </button>
+            </div>
+
             {session?.user ? (
-              <div className="pt-2 flex items-center justify-between border-t border-[#C99A4B]/20">
+              <div className="mt-2 flex items-center justify-between rounded-xl border border-[#C99A4B]/20 bg-white/70 p-3">
                 <div className="flex items-center gap-2">
                   <div className="relative size-7 shrink-0 rounded-full border border-[#C99A4B]/60 overflow-hidden bg-[#064B38] flex items-center justify-center">
                     {session.user.image ? (
@@ -372,24 +395,24 @@ export default function Navbar() {
                     setMobileOpen(false);
                     handleSignOut();
                   }}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-full border border-[#C83D2B] text-[#C83D2B] hover:bg-[#C83D2B] hover:text-white transition-colors"
+                  className="rounded-full border border-[#C83D2B]/60 px-3 py-1.5 text-xs font-semibold text-[#C83D2B] transition-colors hover:bg-[#C83D2B] hover:text-white"
                 >
                   {isBengali ? "সাইন আউট" : "Sign Out"}
                 </button>
               </div>
             ) : (
-              <div className="pt-2 flex items-center gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#C99A4B]/25 pt-3">
                 <Link
                   href="/sing-in"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center py-2 text-xs font-semibold rounded-full border border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] transition-colors"
+                  className="rounded-full border border-[#064B38]/60 py-2.5 text-center text-xs font-semibold text-[#064B38] transition-colors hover:bg-[#064B38] hover:text-[#F7F1E3]"
                 >
                   {isBengali ? "সাইন ইন" : "Sign In"}
                 </Link>
                 <Link
                   href="/sing-up"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center py-2 text-xs font-semibold rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/90 transition-colors"
+                  className="rounded-full bg-[#064B38] py-2.5 text-center text-xs font-semibold text-[#F7F1E3] transition-colors hover:bg-[#064B38]/90"
                 >
                   {isBengali ? "নিবন্ধন করুন" : "Sign Up"}
                 </Link>
