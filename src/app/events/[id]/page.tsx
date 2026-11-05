@@ -6,6 +6,7 @@ import {
     Clock,
     MapPin,
     Tag,
+    UsersRound,
 } from "lucide-react";
 import Image from "next/image";
 import JoinEventButton from "@/components/home/JoinEventButton";
@@ -23,6 +24,7 @@ interface EventItem {
     imageUrl?: string;
     image?: string;
     isCompleted?: boolean;
+    joinedCount?: number;
 }
 
 // ---------- Helpers (same as AllEventsPage) ----------
@@ -172,7 +174,7 @@ const EventDetailsPage = async ({
                 </div>
 
                 {/* Info cards: date, time, location */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
                     <InfoCard
                         icon={<Calendar className="size-5" />}
                         label="Date"
@@ -187,6 +189,11 @@ const EventDetailsPage = async ({
                         icon={<MapPin className="size-5" />}
                         label="Location"
                         value={data.location || "Location TBD"}
+                    />
+                    <InfoCard
+                        icon={<UsersRound className="size-5" />}
+                        label="People Joined"
+                        value={String(data.joinedCount ?? 0)}
                     />
                 </div>
 
@@ -207,7 +214,7 @@ const EventDetailsPage = async ({
                 <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-between bg-[#064B38] rounded-3xl p-6 sm:p-8 text-[#F7F1E3] shadow-xl">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-[#C99A4B] mb-1">
-                            Join us
+                            Join us 
                         </p>
                         <p
                             className="text-lg sm:text-xl font-semibold"

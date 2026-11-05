@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ export default function JoinEventButton({
   const [isJoined, setIsJoined] = useState<boolean | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const email = session?.user?.email;
 
@@ -81,6 +83,7 @@ export default function JoinEventButton({
       setIsJoined(true);
       setIsConfirmationOpen(false);
       toast.success("You joined this event!");
+      router.refresh();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not join this event.";

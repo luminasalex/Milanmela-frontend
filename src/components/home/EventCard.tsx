@@ -210,7 +210,7 @@ export default function EventCard({
             </Button>
           )}
 
-          {eventId &&
+          {/* {eventId &&
             (isCompleted ? (
               <Button
                 type="button"
@@ -263,7 +263,7 @@ export default function EventCard({
                   <UserRoundPlus className="size-3.5 ml-1" />
                 )}
               </Button>
-            ))}
+            ))} */}
         </div>
       </CardContent>
     </Card>
