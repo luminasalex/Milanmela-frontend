@@ -2,8 +2,52 @@
 
 import { motion } from "framer-motion";
 import { Landmark, Network, Sparkles, BookMarked } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
-const details = [
+const bengaliDetails = [
+  {
+    icon: Landmark,
+    title: "সাংস্কৃতিক ঐতিহ্য",
+    value: "৫০০+ বছর",
+    description:
+      "বাঙালির লোকশিল্প, সংগীত ও গল্প বলার চিরায়ত ঐতিহ্যে আমাদের শিকড়, যা যুগে যুগে পরিচয় গড়েছে।",
+    accentColor: "text-[#064B38]",
+    iconBg: "bg-[#064B38]/10",
+    borderColor: "border-[#064B38]/20",
+  },
+  {
+    icon: Network,
+    title: "সম্প্রদায়ের বন্ধন",
+    value: "১০,০০০+",
+    description:
+      "বাঙালি সংস্কৃতিপ্রেমী, শিল্পী ও পরিবারের প্রাণবন্ত এক নেটওয়ার্ক—একই ভালোবাসা ও ঐতিহ্যে যুক্ত।",
+    accentColor: "text-[#C83D2B]",
+    iconBg: "bg-[#C83D2B]/10",
+    borderColor: "border-[#C83D2B]/20",
+  },
+  {
+    icon: Sparkles,
+    title: "আয়োজনের অভিজ্ঞতা",
+    value: "৫০+ আয়োজন",
+    description:
+      "ছোট মিলনমেলা থেকে বড় উৎসব—প্রতিটি আয়োজন সাজানো হয় স্মরণীয় অভিজ্ঞতার জন্য।",
+    accentColor: "text-[#C99A4B]",
+    iconBg: "bg-[#C99A4B]/15",
+    borderColor: "border-[#C99A4B]/25",
+  },
+  {
+    icon: BookMarked,
+    title: "ভাগ করে নেওয়া স্মৃতি",
+    value: "১০০০+ গল্প",
+    description:
+      "আমাদের ছবির সংগ্রহ প্রতিটি উদ্‌যাপনের সৌন্দর্য ধরে রাখে—প্রজন্মের জন্য সংরক্ষণ করে বাঙালির সম্মিলিত স্মৃতি।",
+    accentColor: "text-[#65472D]",
+    iconBg: "bg-[#65472D]/10",
+    borderColor: "border-[#65472D]/20",
+  },
+];
+
+const englishDetails = [
   {
     icon: Landmark,
     title: "Cultural Heritage",
@@ -29,7 +73,7 @@ const details = [
     title: "Event Experiences",
     value: "50+ Events",
     description:
-      "From intimate gatherings to grand festivals — every Milanmela event is meticulously crafted for unforgettable impact.",
+      "From intimate gatherings to grand festivals — every Milanmela event is crafted for unforgettable impact.",
     accentColor: "text-[#C99A4B]",
     iconBg: "bg-[#C99A4B]/15",
     borderColor: "border-[#C99A4B]/25",
@@ -39,7 +83,7 @@ const details = [
     title: "Shared Memories",
     value: "1000+ Stories",
     description:
-      "Our gallery archive captures the beauty of every celebration — preserving collective Bengali memories for generations.",
+      "Our gallery archive captures the beauty of every celebration, preserving collective Bengali memories for generations.",
     accentColor: "text-[#65472D]",
     iconBg: "bg-[#65472D]/10",
     borderColor: "border-[#65472D]/20",
@@ -47,6 +91,9 @@ const details = [
 ];
 
 export default function AboutDetails() {
+  const isBengali = useLanguage() === "bn";
+  const details = isBengali ? bengaliDetails : englishDetails;
+
   return (
     <section
       id="about-details"
@@ -69,9 +116,9 @@ export default function AboutDetails() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl font-bold text-[#064B38] mb-3"
-            style={{ fontFamily: "var(--font-serif)" }}
+            style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
           >
-            What Makes Us{" "}
+            {isBengali ? "যে বৈশিষ্ট্যে আমরা " : "What Makes Us "}
             <span className="text-[#C83D2B]">Milanmela</span>
           </motion.h2>
           <motion.p
@@ -81,8 +128,9 @@ export default function AboutDetails() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-sm text-[#65472D] max-w-md mx-auto"
           >
-            Four pillars that define our mission and guide every cultural
-            experience we create together.
+            {isBengali
+              ? "আমাদের লক্ষ্য ও একসঙ্গে গড়ে তোলা প্রতিটি সাংস্কৃতিক অভিজ্ঞতার চারটি ভিত্তি।"
+              : "Four pillars that define our mission and guide every cultural experience we create together."}
           </motion.p>
         </div>
 
@@ -110,7 +158,7 @@ export default function AboutDetails() {
                 <div>
                   <p
                     className={`text-2xl font-bold ${item.accentColor}`}
-                    style={{ fontFamily: "var(--font-serif)" }}
+                    style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
                   >
                     {item.value}
                   </p>

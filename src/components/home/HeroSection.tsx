@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -15,6 +16,9 @@ const fadeUp = {
 };
 
 export default function HeroSection() {
+  const language = useLanguage();
+  const isBengali = language === "bn";
+
   return (
     <section
       id="hero"
@@ -60,8 +64,8 @@ export default function HeroSection() {
               className="inline-flex items-center gap-2 rounded-full border border-[#C99A4B]/50 bg-white px-4 py-1.5 shadow-sm"
             >
               <span className="size-2 rounded-full bg-[#C83D2B] animate-pulse" />
-              <span className="text-xs font-semibold tracking-widest text-[#65472D] uppercase">
-                Community Service Platform
+              <span className={`text-xs font-semibold tracking-widest text-[#65472D] ${isBengali ? "" : "uppercase"}`}>
+                {isBengali ? "কমিউনিটি সেবা প্ল্যাটফর্ম" : "COMMUNITY SERVICE PLATFORM"}
               </span>
             </motion.div>
 
@@ -72,16 +76,16 @@ export default function HeroSection() {
               animate="visible"
               custom={1}
               className="text-4xl sm:text-5xl xl:text-6xl font-bold leading-tight text-[#064B38]"
-              style={{ fontFamily: "var(--font-serif)" }}
+              style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
             >
-              Where People{" "}
+              {isBengali ? "একসাথে " : "Bring People Together "}
               <span className="relative inline-block">
-                Take Action
+                {isBengali ? "গড়ি" : "Through Action"}
                 <span
                   className="absolute -bottom-1 left-0 w-full h-1 rounded-full bg-[#C99A4B]"
                 />
               </span>{" "}
-              <span className="text-[#C83D2B]">Community</span>
+              <span className="text-[#C83D2B]">{isBengali ? "সুন্দর সমাজ" : "for Community"}</span>
             </motion.h1>
 
             {/* Bengali subtitle */}
@@ -91,9 +95,11 @@ export default function HeroSection() {
               animate="visible"
               custom={2}
               className="text-lg text-[#064B38]/70"
-              style={{ fontFamily: "var(--font-bengali)" }}
+              style={{ fontFamily: isBengali ? "var(--font-bengali)" : "inherit" }}
             >
-              একসাথে কাজ করি, সুন্দর সমাজ গড়ি।
+              {isBengali
+                ? "একসাথে কাজ করি, সুন্দর সমাজ গড়ি।"
+                : "Let’s work together to build a better community."}
             </motion.p>
 
             {/* Description */}
@@ -104,9 +110,9 @@ export default function HeroSection() {
               custom={3}
               className="max-w-lg text-base leading-relaxed text-[#65472D]"
             >
-              Discover local cleanup, plantation, donation, and education
-              initiatives. Create an event, invite your neighbors, and make a
-              practical difference together.
+              {isBengali
+                ? "পরিচ্ছন্নতা, বৃক্ষরোপণ, দান ও শিক্ষামূলক উদ্যোগে অংশ নিন। একটি আয়োজন তৈরি করুন, প্রতিবেশীদের আমন্ত্রণ জানান, আর একসাথে গড়ুন সুন্দর সমাজ।"
+                : "Join local cleanups, tree planting, donation drives, and educational initiatives. Create an event, invite your neighbors, and make a difference together."}
             </motion.p>
 
             {/* CTAs */}
@@ -121,7 +127,7 @@ export default function HeroSection() {
                 <Button
                   className="h-12 px-7 rounded-full bg-[#064B38] text-[#F7F1E3] hover:bg-[#064B38]/85 text-sm font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
                 >
-                  Explore Events
+                  {isBengali ? "আয়োজন দেখুন" : "Explore Events"}
                   <ArrowRight className="size-4 ml-1" />
                 </Button>
               </a>
@@ -131,7 +137,7 @@ export default function HeroSection() {
                   className="h-12 px-7 rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38]/5 text-sm font-semibold transition-all hover:-translate-y-0.5"
                 >
                   <Play className="size-4 mr-1 fill-[#C83D2B] text-[#C83D2B]" />
-                  Discover Our Story
+                  {isBengali ? "আমাদের গল্প জানুন" : "Discover Our Story"}
                 </Button>
               </a>
             </motion.div>
@@ -145,14 +151,23 @@ export default function HeroSection() {
               className="flex flex-wrap gap-8 pt-4 border-t border-[#C99A4B]/30 mt-2"
             >
               {[
-                { value: "Local", label: "Events Near You" },
-                { value: "Open", label: "Everyone Can Join" },
-                { value: "Together", label: "Stronger Communities" },
+                {
+                  value: isBengali ? "স্থানীয়" : "Local",
+                  label: isBengali ? "আপনার আশেপাশের আয়োজন" : "Events Near You",
+                },
+                {
+                  value: isBengali ? "সবার জন্য" : "Open",
+                  label: isBengali ? "যে কেউ যোগ দিতে পারেন" : "Everyone Can Join",
+                },
+                {
+                  value: isBengali ? "একসাথে" : "Together",
+                  label: isBengali ? "আরও শক্তিশালী সমাজ" : "Stronger Communities",
+                },
               ].map((stat) => (
                 <div key={stat.label} className="flex flex-col">
                   <span
                     className="text-2xl font-bold text-[#C83D2B]"
-                    style={{ fontFamily: "var(--font-serif)" }}
+                    style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
                   >
                     {stat.value}
                   </span>
@@ -178,7 +193,7 @@ export default function HeroSection() {
             <div className="relative w-[300px] h-[300px] md:w-[420px] md:h-[420px] rounded-full overflow-hidden border-4 border-[#C99A4B]/50 shadow-2xl">
               <Image
                 src="/Milanmela.png"
-                alt="Milanmela community service events"
+                alt={isBengali ? "মিলনমেলার কমিউনিটি সেবামূলক আয়োজন" : "Milanmela community service events"}
                 fill
                 className="object-cover object-center"
                 priority
@@ -195,8 +210,8 @@ export default function HeroSection() {
             >
               <span className="text-2xl">🪔</span>
               <div className="flex flex-col text-left">
-                <span className="text-xs font-bold text-[#064B38]">Live Events</span>
-                <span className="text-xs text-[#65472D]">Active Now</span>
+                <span className="text-xs font-bold text-[#064B38]">{isBengali ? "চলমান আয়োজন" : "Live Events"}</span>
+                <span className="text-xs text-[#65472D]">{isBengali ? "এখনই সক্রিয়" : "Active Now"}</span>
               </div>
             </motion.div>
 
@@ -208,8 +223,8 @@ export default function HeroSection() {
             >
               <span className="text-2xl">🎭</span>
               <div className="flex flex-col text-left">
-                <span className="text-xs font-bold text-[#F7F1E3]">Cultural Heritage</span>
-                <span className="text-xs text-[#C99A4B]">Since 2016</span>
+                <span className="text-xs font-bold text-[#F7F1E3]">{isBengali ? "সাংস্কৃতিক ঐতিহ্য" : "Cultural Heritage"}</span>
+                <span className="text-xs text-[#C99A4B]">{isBengali ? "২০১৬ সাল থেকে" : "Since 2016"}</span>
               </div>
             </motion.div>
           </motion.div>

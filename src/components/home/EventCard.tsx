@@ -20,6 +20,7 @@ import {
   invalidateJoinedEventIds,
 } from "@/lib/joined-events";
 import { toast } from "react-toastify";
+import { getCategoryLabel } from "@/lib/events";
 
 export interface EventCardProps {
   id?: string;
@@ -34,6 +35,7 @@ export interface EventCardProps {
   isCompleted?: boolean;
   image?: string;
   imageUrl?: string;
+  locale?: "bn" | "en";
 }
 
 export default function EventCard({
@@ -49,6 +51,7 @@ export default function EventCard({
   isCompleted = false,
   image,
   imageUrl,
+  locale = "en",
 }: EventCardProps) {
   const eventId = id || _id;
   const rawSrc = (image || imageUrl || "").trim();
@@ -124,7 +127,7 @@ export default function EventCard({
       <div className="relative h-52 w-full overflow-hidden bg-[#064B38]/10">
         <Image
           src={displaySrc}
-          alt={title || "Event Image"}
+          alt={title || (locale === "bn" ? "আয়োজনের ছবি" : "Event Image")}
           fill
           unoptimized={isExternal}
           onError={() => setFailedSrc(rawSrc)}
@@ -138,7 +141,7 @@ export default function EventCard({
           <span
             className={`inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${categoryColor} backdrop-blur-sm`}
           >
-            {category}
+            {getCategoryLabel(category, locale)}
           </span>
         </div>
 
@@ -146,7 +149,7 @@ export default function EventCard({
         {isCompleted && (
           <div className="absolute top-3 right-3">
             <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#C99A4B] text-[#064B38]">
-              Completed
+              {locale === "bn" ? "সম্পন্ন" : "Completed"}
             </span>
           </div>
         )}
@@ -163,7 +166,7 @@ export default function EventCard({
         {/* Title */}
         <h3
           className="font-bold text-lg leading-snug text-[#064B38] group-hover:text-[#C83D2B] transition-colors"
-          style={{ fontFamily: "var(--font-serif)" }}
+          style={{ fontFamily: locale === "bn" ? "var(--font-bengali)" : "var(--font-serif)" }}
         >
           {title}
         </h3>
@@ -196,7 +199,13 @@ export default function EventCard({
                 variant="outline"
                 className="w-full h-9 rounded-full border-[#064B38] text-[#064B38] text-xs font-semibold hover:bg-[#064B38] hover:text-[#F7F1E3] transition-all cursor-pointer"
               >
-                {isCompleted ? "View Highlights" : "View Details"}
+                {locale === "bn"
+                  ? isCompleted
+                    ? "স্মৃতিচিত্র দেখুন"
+                    : "বিস্তারিত দেখুন"
+                  : isCompleted
+                    ? "View Highlights"
+                    : "View Details"}
                 <ArrowRight className="size-3.5 ml-1" />
               </Button>
             </Link>
@@ -205,7 +214,13 @@ export default function EventCard({
               variant="outline"
               className="w-full h-9 rounded-full border-[#064B38] text-[#064B38] text-xs font-semibold hover:bg-[#064B38] hover:text-[#F7F1E3] transition-all"
             >
-              {isCompleted ? "View Highlights" : "View Details"}
+              {locale === "bn"
+                ? isCompleted
+                  ? "স্মৃতিচিত্র দেখুন"
+                  : "বিস্তারিত দেখুন"
+                : isCompleted
+                  ? "View Highlights"
+                  : "View Details"}
               <ArrowRight className="size-3.5 ml-1" />
             </Button>
           )}

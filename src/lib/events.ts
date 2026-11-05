@@ -14,6 +14,27 @@ export interface EventItem {
   isCompleted?: boolean;
 }
 
+const BENGALI_CATEGORY_LABELS: Record<string, string> = {
+  Cleanup: "পরিচ্ছন্নতা অভিযান",
+  Plantation: "বৃক্ষরোপণ",
+  Donation: "অনুদান",
+  "Food Distribution": "খাদ্য বিতরণ",
+  Education: "শিক্ষা",
+  Festival: "উৎসব",
+  Cultural: "সাংস্কৃতিক",
+  Heritage: "ঐতিহ্য",
+  Music: "সংগীত",
+  Community: "সম্প্রদায়",
+  Other: "অন্যান্য",
+};
+
+export function getCategoryLabel(
+  category: string,
+  locale: "bn" | "en" = "en",
+): string {
+  return locale === "bn" ? BENGALI_CATEGORY_LABELS[category] || category : category;
+}
+
 export const CATEGORY_COLORS: Record<string, string> = {
   Cleanup: "bg-[#064B38]/90 text-white",
   Plantation: "bg-[#2F855A] text-white",
@@ -47,11 +68,11 @@ export function filterEventsByCategory<T extends Pick<EventItem, "category">>(
   );
 }
 
-export function formatDate(raw?: string): string {
-  if (!raw) return "Date TBD";
+export function formatDate(raw?: string, locale = "en-US"): string {
+  if (!raw) return locale === "bn-BD" ? "তারিখ নির্ধারিত নয়" : "Date TBD";
   const d = new Date(raw);
   if (isNaN(d.getTime())) return raw;
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",

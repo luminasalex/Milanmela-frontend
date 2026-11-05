@@ -1,21 +1,43 @@
+"use client";
+
 import Image from "next/image";
 import { Globe, Share2, Link2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useLanguage } from "@/components/LanguageProvider";
 
-const quickLinks = [
-  { label: "Home", href: "" },
-  { label: "About Milanmela", href: "#about" },
-  { label: "Upcoming Events", href: "#upcoming-events" },
-  { label: "Gallery Showcase", href: "#gallery" },
-  { label: "Past Events", href: "#completed-events" },
-];
+const quickLinks = {
+  bn: [
+    { label: "হোম", href: "" },
+    { label: "মিলনমেলা সম্পর্কে", href: "#about" },
+    { label: "আসন্ন আয়োজন", href: "#upcoming-events" },
+    { label: "ছবির গ্যালারি", href: "#gallery" },
+    { label: "বিগত আয়োজন", href: "#completed-events" },
+  ],
+  en: [
+    { label: "Home", href: "" },
+    { label: "About Milanmela", href: "#about" },
+    { label: "Upcoming Events", href: "#upcoming-events" },
+    { label: "Gallery Showcase", href: "#gallery" },
+    { label: "Past Events", href: "#completed-events" },
+  ],
+};
 
-const usefulLinks = [
-  { label: "Community Impact", href: "#about-details" },
-  { label: "Community Blog", href: "#" },
-  { label: "Event Partners", href: "#" },
-  { label: "Media Coverage", href: "#" },
-  { label: "Newsletter", href: "#newsletter" },
-];
+const usefulLinks = {
+  bn: [
+    { label: "সমাজে অবদান", href: "#about-details" },
+    { label: "কমিউনিটি ব্লগ", href: "#" },
+    { label: "আয়োজনের সহযোগী", href: "#" },
+    { label: "গণমাধ্যমে", href: "#" },
+    { label: "নিউজলেটার", href: "#newsletter" },
+  ],
+  en: [
+    { label: "Community Impact", href: "#about-details" },
+    { label: "Community Blog", href: "#" },
+    { label: "Event Partners", href: "#" },
+    { label: "Media Coverage", href: "#" },
+    { label: "Newsletter", href: "#newsletter" },
+  ],
+};
 
 const socialLinks = [
   { icon: Globe, label: "Facebook", href: "#" },
@@ -25,8 +47,17 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  const language = useLanguage();
+  const isBengali = pathname === "/" && language === "bn";
+  const activeLanguage = isBengali ? "bn" : "en";
+
   return (
-    <footer className="relative w-full bg-[#064B38] overflow-hidden">
+    <footer
+      lang={activeLanguage}
+      style={{ fontFamily: isBengali ? "var(--font-bengali)" : "inherit" }}
+      className="relative w-full bg-[#064B38] overflow-hidden"
+    >
       {/* Golden top separator */}
       <div className="h-1 w-full bg-gradient-to-r from-[#C83D2B] via-[#C99A4B] to-[#C83D2B]" />
 
@@ -43,7 +74,7 @@ export default function Footer() {
               <div className="relative size-12 rounded-full border-2 border-[#C99A4B]/50 overflow-hidden shadow-md flex-shrink-0">
                 <Image
                   src="/Milanmela.png"
-                  alt="Milanmela Logo"
+                  alt={isBengali ? "মিলনমেলার লোগো" : "Milanmela Logo"}
                   fill
                   className="object-cover"
                 />
@@ -56,7 +87,7 @@ export default function Footer() {
                   Milanmela
                 </p>
                 <p className="text-[10px] text-[#C99A4B] tracking-widest uppercase">
-                  Community Service Platform
+                  {isBengali ? "কমিউনিটি সেবা প্ল্যাটফর্ম" : "Community Service Platform"}
                 </p>
               </div>
             </div>
@@ -64,15 +95,18 @@ export default function Footer() {
             {/* Bengali tagline */}
             <p
               className="text-sm text-[#F7F1E3]/70 italic"
-              style={{ fontFamily: "var(--font-bengali)" }}
+              style={{ fontFamily: isBengali ? "var(--font-bengali)" : "inherit" }}
             >
-              সংস্কৃতির ছোঁয়ায়, মিলনের আয়োজনে।
+              {isBengali
+                ? "সংস্কৃতির ছোঁয়ায়, মিলনের আয়োজনে।"
+                : "Celebrating culture, bringing people together."}
             </p>
 
             {/* Description */}
             <p className="text-xs text-[#F7F1E3]/60 leading-relaxed">
-              Milanmela connects people with local volunteer opportunities and
-              community service events across Bangladesh.
+              {isBengali
+                ? "মিলনমেলা বাংলাদেশের বিভিন্ন এলাকার স্বেচ্ছাসেবার সুযোগ ও কমিউনিটি সেবামূলক আয়োজনের সঙ্গে মানুষকে যুক্ত করে।"
+                : "Milanmela connects people with local volunteer opportunities and community service events across Bangladesh."}
             </p>
 
             {/* Social icons */}
@@ -103,11 +137,11 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="flex flex-col gap-4">
             <h4 className="text-sm font-bold text-[#C99A4B] uppercase tracking-widest">
-              Quick Links
+              {isBengali ? "দ্রুত লিংক" : "Quick Links"}
             </h4>
             <div className="h-px w-8 bg-[#C99A4B]/40" />
             <ul className="flex flex-col gap-2.5">
-              {quickLinks.map((link) => (
+              {quickLinks[activeLanguage].map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -124,11 +158,11 @@ export default function Footer() {
           {/* Useful Links */}
           <div className="flex flex-col gap-4">
             <h4 className="text-sm font-bold text-[#C99A4B] uppercase tracking-widest">
-              Useful Links
+              {isBengali ? "প্রয়োজনীয় লিংক" : "Useful Links"}
             </h4>
             <div className="h-px w-8 bg-[#C99A4B]/40" />
             <ul className="flex flex-col gap-2.5">
-              {usefulLinks.map((link) => (
+              {usefulLinks[activeLanguage].map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -145,23 +179,24 @@ export default function Footer() {
           {/* Contact / CTA */}
           <div className="flex flex-col gap-4">
             <h4 className="text-sm font-bold text-[#C99A4B] uppercase tracking-widest">
-              Get In Touch
+              {isBengali ? "যোগাযোগ করুন" : "Get In Touch"}
             </h4>
             <div className="h-px w-8 bg-[#C99A4B]/40" />
             <p className="text-xs text-[#F7F1E3]/60 leading-relaxed">
-              Have questions about upcoming events or want to partner with us?
-              We&apos;d love to hear from you.
+              {isBengali
+                ? "আসন্ন আয়োজন সম্পর্কে জানতে চান বা আমাদের সঙ্গে কাজ করতে চান? আপনার কথা শুনতে আমরা আগ্রহী।"
+                : "Have questions about upcoming events or want to partner with us? We’d love to hear from you."}
             </p>
             <div className="flex flex-col gap-2 text-xs text-[#F7F1E3]/60">
               <p>📧 hello@milanmela.com</p>
-              <p>📍 Dhaka, Bangladesh</p>
+              <p>📍 {isBengali ? "ঢাকা, বাংলাদেশ" : "Dhaka, Bangladesh"}</p>
               <p>📞 +880 1700-000000</p>
             </div>
             <a
               href="#newsletter"
               className="inline-flex items-center gap-2 self-start mt-2 rounded-full bg-[#C83D2B]/80 hover:bg-[#C83D2B] text-white text-xs font-bold px-5 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              Subscribe Newsletter →
+              {isBengali ? "নিউজলেটারে যুক্ত হোন" : "Subscribe Newsletter"} →
             </a>
           </div>
         </div>
@@ -169,14 +204,18 @@ export default function Footer() {
         {/* Bottom divider */}
         <div className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#C99A4B]/20 pt-8">
           <p className="text-xs text-[#F7F1E3]/50 text-center sm:text-left">
-            © {new Date().getFullYear()} Milanmela. All rights reserved. Crafted with{" "}
-            <span className="text-[#C83D2B]">♥</span> for our community.
+            © {new Date().getFullYear().toLocaleString(isBengali ? "bn-BD" : "en-US")}{" "}
+            {isBengali
+              ? "মিলনমেলা। সর্বস্বত্ব সংরক্ষিত। আমাদের কমিউনিটির জন্য"
+              : "Milanmela. All rights reserved. Crafted with"}
+            <span className="text-[#C83D2B]">♥</span>
+            {!isBengali && " for our community."}
           </p>
 
           <div className="flex items-center gap-1.5">
             <div className="h-px w-12 bg-[#C99A4B]/30" />
             <span className="text-[#C99A4B]/60 text-[10px] tracking-widest uppercase font-bold">
-              সংস্কৃতির ছোঁয়ায়
+              {isBengali ? "সংস্কৃতির ছোঁয়ায়" : "Bengali Culture"}
             </span>
             <div className="h-px w-12 bg-[#C99A4B]/30" />
           </div>

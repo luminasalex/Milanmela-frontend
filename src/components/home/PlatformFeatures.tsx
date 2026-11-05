@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Users, CalendarDays, ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const features = [
   {
@@ -10,10 +11,10 @@ const features = [
     iconBg: "bg-[#064B38]/10",
     iconColor: "text-[#064B38]",
     accentColor: "border-t-[#064B38]",
-    title: "Community Action",
+    title: "সমাজের জন্য উদ্যোগ",
     description:
-      "Bring neighbors together for local cleanups, tree planting, donations, and other helpful projects.",
-    badge: "Community",
+      "পরিচ্ছন্নতা, বৃক্ষরোপণ, দানসহ নানা কল্যাণমূলক কাজে প্রতিবেশীদের এক করুন।",
+    badge: "সম্প্রদায়",
     badgeColor: "bg-[#064B38]/10 text-[#064B38]",
   },
   {
@@ -21,10 +22,10 @@ const features = [
     iconBg: "bg-[#C83D2B]/10",
     iconColor: "text-[#C83D2B]",
     accentColor: "border-t-[#C83D2B]",
-    title: "Upcoming Events",
+    title: "আসন্ন আয়োজন",
     description:
-      "Find upcoming volunteer activities near you and join the ones that matter to your community.",
-    badge: "Events",
+      "আপনার এলাকার আসন্ন স্বেচ্ছাসেবামূলক আয়োজন খুঁজে নিন এবং যোগ দিন।",
+    badge: "আয়োজন",
     badgeColor: "bg-[#C83D2B]/10 text-[#C83D2B]",
   },
   {
@@ -32,10 +33,10 @@ const features = [
     iconBg: "bg-[#C99A4B]/15",
     iconColor: "text-[#65472D]",
     accentColor: "border-t-[#C99A4B]",
-    title: "Memories & Showcases",
+    title: "স্মৃতি ও প্রদর্শনী",
     description:
-      "Share the impact of past community service events and inspire others to get involved.",
-    badge: "Gallery",
+      "আগের সেবামূলক আয়োজনের স্মৃতি ভাগ করে নিন, অন্যদেরও অনুপ্রাণিত করুন।",
+    badge: "ছবির গ্যালারি",
     badgeColor: "bg-[#C99A4B]/15 text-[#65472D]",
   },
 ];
@@ -50,6 +51,49 @@ const cardVariants = {
 };
 
 export default function PlatformFeatures() {
+  const isBengali = useLanguage() === "bn";
+  const featureCopy = isBengali
+    ? [
+        {
+          title: "সমাজের জন্য উদ্যোগ",
+          description:
+            "পরিচ্ছন্নতা, বৃক্ষরোপণ, দানসহ নানা কল্যাণমূলক কাজে প্রতিবেশীদের এক করুন।",
+          badge: "সম্প্রদায়",
+        },
+        {
+          title: "আসন্ন আয়োজন",
+          description:
+            "আপনার এলাকার আসন্ন স্বেচ্ছাসেবামূলক আয়োজন খুঁজে নিন এবং যোগ দিন।",
+          badge: "আয়োজন",
+        },
+        {
+          title: "স্মৃতি ও প্রদর্শনী",
+          description:
+            "আগের সেবামূলক আয়োজনের স্মৃতি ভাগ করে নিন, অন্যদেরও অনুপ্রাণিত করুন।",
+          badge: "ছবির গ্যালারি",
+        },
+      ]
+    : [
+        {
+          title: "Community Action",
+          description:
+            "Bring neighbors together for local cleanups, tree planting, donations, and other helpful projects.",
+          badge: "Community",
+        },
+        {
+          title: "Upcoming Events",
+          description:
+            "Find upcoming volunteer activities near you and join the ones that matter to your community.",
+          badge: "Events",
+        },
+        {
+          title: "Memories & Showcases",
+          description:
+            "Share the impact of past community service events and inspire others to get involved.",
+          badge: "Gallery",
+        },
+      ];
+
   return (
     <section
       id="platform-features"
@@ -74,11 +118,13 @@ export default function PlatformFeatures() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl font-bold text-[#064B38] mb-4"
-            style={{ fontFamily: "var(--font-serif)" }}
+            style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
           >
-            Bringing People Together
+            {isBengali ? "মানুষকে একত্র করি" : "Bringing People Together"}
             <br />
-            <span className="text-[#C83D2B]">Through Service</span>
+            <span className="text-[#C83D2B]">
+              {isBengali ? "সেবার বন্ধনে" : "Through Service"}
+            </span>
           </motion.h2>
 
           <motion.p
@@ -88,8 +134,9 @@ export default function PlatformFeatures() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="max-w-xl mx-auto text-[#65472D] text-base leading-relaxed"
           >
-            Milanmela makes it simple to organize local initiatives, find
-            volunteers, and turn shared ideas into helpful action.
+            {isBengali
+              ? "মিলনমেলা স্থানীয় উদ্যোগ আয়োজন, স্বেচ্ছাসেবক খোঁজা এবং সম্মিলিত ভাবনাকে কাজে রূপ দেওয়া সহজ করে।"
+              : "Milanmela makes it simple to organize local initiatives, find volunteers, and turn shared ideas into helpful action."}
           </motion.p>
         </div>
 
@@ -101,7 +148,7 @@ export default function PlatformFeatures() {
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
         >
-          {features.map((feat) => {
+          {features.map((feat, index) => {
             const Icon = feat.icon;
             return (
               <motion.div key={feat.title} variants={cardVariants}>
@@ -120,26 +167,26 @@ export default function PlatformFeatures() {
                     <span
                       className={`self-start text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${feat.badgeColor}`}
                     >
-                      {feat.badge}
+                      {featureCopy[index].badge}
                     </span>
 
                     {/* Title */}
                     <h3
                       className="text-xl font-bold text-[#064B38]"
-                      style={{ fontFamily: "var(--font-serif)" }}
+                      style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
                     >
-                      {feat.title}
+                      {featureCopy[index].title}
                     </h3>
 
                     {/* Description */}
                     <p className="text-sm leading-relaxed text-[#65472D]">
-                      {feat.description}
+                      {featureCopy[index].description}
                     </p>
 
                     {/* Golden bottom accent */}
                     <div className="mt-auto pt-4 border-t border-[#C99A4B]/20">
                       <span className="text-xs font-semibold text-[#C99A4B] tracking-wide uppercase group-hover:text-[#064B38] transition-colors">
-                        Learn More →
+                        {isBengali ? "আরও জানুন" : "Learn More"} →
                       </span>
                     </div>
                   </CardContent>

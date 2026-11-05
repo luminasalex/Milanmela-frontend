@@ -4,52 +4,53 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const galleryItems = [
   {
-    caption: "Baishakhi Procession",
+    caption: { bn: "বৈশাখী শোভাযাত্রা", en: "Baishakhi Procession" },
     src: "/gallery/baishakhi-procession.jpg",
     aspect: "aspect-[4/5]",
     objectPos: "object-top",
     colSpan: "",
   },
   {
-    caption: "Pitha Puli",
+    caption: { bn: "পিঠাপুলি", en: "Pitha Puli" },
     src: "/gallery/pitha-puli.jpg",
     aspect: "aspect-[16/9]",
     objectPos: "object-center",
     colSpan: "sm:col-span-2 md:col-span-2",
   },
   {
-    caption: "Traditional Folk Dance",
+    caption: { bn: "ঐতিহ্যবাহী লোকনৃত্য", en: "Traditional Folk Dance" },
     src: "/gallery/traditional-folk-dance.jpg",
     aspect: "aspect-square",
     objectPos: "object-center",
     colSpan: "",
   },
   {
-    caption: "Nakshi Kantha Workshop",
+    caption: { bn: "নকশিকাঁথা কর্মশালা", en: "Nakshi Kantha Workshop" },
     src: "/gallery/nakshi-kantha-workshop.jpg",
     aspect: "aspect-square",
     objectPos: "object-bottom",
     colSpan: "",
   },
   {
-    caption: "Community Gathering",
+    caption: { bn: "সম্প্রদায়ের মিলনমেলা", en: "Community Gathering" },
     src: "/gallery/community-gathering.jpg",
     aspect: "aspect-[3/4]",
     objectPos: "object-center",
     colSpan: "",
   },
   {
-    caption: "Street Food Carnival",
+    caption: { bn: "পথখাবারের উৎসব", en: "Street Food Carnival" },
     src: "/gallery/street-food-carnival.jpg",
     aspect: "aspect-[4/5]",
     objectPos: "object-center",
     colSpan: "",
   },
   {
-    caption: "Heritage Craft Exhibition",
+    caption: { bn: "ঐতিহ্যবাহী কারুশিল্প প্রদর্শনী", en: "Heritage Craft Exhibition" },
     src: "/gallery/heritage-craft-exhibition.jpg",
     aspect: "aspect-[16/9]",
     objectPos: "object-top",
@@ -58,6 +59,8 @@ const galleryItems = [
 ];
 
 export default function GalleryShowcase() {
+  const isBengali = useLanguage() === "bn";
+
   return (
     <section
       id="gallery"
@@ -79,7 +82,7 @@ export default function GalleryShowcase() {
             <div className="flex items-center gap-3 mb-3 sm:mb-4">
               <div className="h-px w-8 sm:w-12 bg-[#C99A4B]" />
               <span className="text-[10px] sm:text-xs font-bold tracking-widest text-[#C99A4B] uppercase">
-                Visual Stories
+                {isBengali ? "ছবিতে গল্প" : "Visual Stories"}
               </span>
             </div>
             <motion.h2
@@ -89,11 +92,11 @@ export default function GalleryShowcase() {
               transition={{ duration: 0.6 }}
               className="font-bold text-[#064B38] leading-tight"
               style={{
-                fontFamily: "var(--font-serif)",
+                fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)",
                 fontSize: "clamp(1.6rem, 4vw, 2.5rem)",
               }}
             >
-              Gallery Showcase
+              {isBengali ? "ছবির গ্যালারি" : "Gallery Showcase"}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 16 }}
@@ -102,8 +105,9 @@ export default function GalleryShowcase() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="mt-2 text-xs sm:text-sm text-[#65472D] max-w-md leading-relaxed"
             >
-              A curated visual journey through the vibrant celebrations and
-              cultural moments of Milanmela.
+              {isBengali
+                ? "মিলনমেলার প্রাণবন্ত উদ্‌যাপন ও সাংস্কৃতিক মুহূর্তের ছবির ভুবন।"
+                : "A curated visual journey through the vibrant celebrations and cultural moments of Milanmela."}
             </motion.p>
           </div>
 
@@ -112,7 +116,7 @@ export default function GalleryShowcase() {
               variant="outline"
               className="h-10 px-5 sm:px-6 rounded-full border-[#064B38] text-[#064B38] hover:bg-[#064B38] hover:text-[#F7F1E3] text-xs sm:text-sm font-semibold transition-all"
             >
-              Explore Gallery
+              {isBengali ? "গ্যালারি ঘুরে দেখুন" : "Explore Gallery"}
               <ArrowRight className="size-4 ml-1" />
             </Button>
           </a>
@@ -122,7 +126,7 @@ export default function GalleryShowcase() {
         <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 auto-rows-auto">
           {galleryItems.map((item, i) => (
             <motion.div
-              key={item.caption}
+              key={item.caption.en}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
@@ -132,7 +136,7 @@ export default function GalleryShowcase() {
               <div className={`relative w-full ${item.aspect}`}>
                 <Image
                   src={item.src}
-                  alt={item.caption}
+                  alt={isBengali ? item.caption.bn : item.caption.en}
                   fill
                   sizes="(max-width: 400px) 100vw, (max-width: 768px) 50vw, 33vw"
                   className={`object-cover ${item.objectPos} transition-transform duration-500 group-hover:scale-[1.08]`}
@@ -144,7 +148,7 @@ export default function GalleryShowcase() {
                 {/* Caption — always visible on touch, hover-reveal on desktop */}
                 <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4 translate-y-0 opacity-100 [@media(hover:hover)]:translate-y-4 [@media(hover:hover)]:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                   <p className="text-[#F7F1E3] text-xs sm:text-sm font-semibold drop-shadow-md">
-                    {item.caption}
+                    {isBengali ? item.caption.bn : item.caption.en}
                   </p>
                   <div className="flex items-center gap-1.5 mt-1">
                     <div className="h-px w-6 sm:w-8 bg-[#C99A4B]" />

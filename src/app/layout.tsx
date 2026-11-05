@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/home/Footer";
 import { ToastContainer } from "react-toastify";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -64,14 +65,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${notoSerifBengali.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#F7F1E3]">
-        <Navbar />
-        {children}
-        <Footer />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          theme="light"
-        />
+        <LanguageProvider>
+          <Navbar />
+          {children}
+          <Footer />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            theme="light"
+          />
+        </LanguageProvider>
       </body>
     </html>
   );

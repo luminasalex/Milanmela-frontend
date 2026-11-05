@@ -4,8 +4,11 @@ import { motion } from "framer-motion";
 import { Mail, Send, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function NewsletterSection() {
+  const isBengali = useLanguage() === "bn";
+
   return (
     <section
       id="newsletter"
@@ -55,9 +58,9 @@ export default function NewsletterSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-3xl sm:text-4xl font-bold text-[#F7F1E3] mb-4"
-          style={{ fontFamily: "var(--font-serif)" }}
+          style={{ fontFamily: isBengali ? "var(--font-bengali)" : "var(--font-serif)" }}
         >
-          Stay Connected with{" "}
+          {isBengali ? "যুক্ত থাকুন " : "Stay Connected with "}
           <span className="text-[#C99A4B]">Milanmela</span>
         </motion.h2>
 
@@ -69,8 +72,9 @@ export default function NewsletterSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-[#F7F1E3]/75 text-base mb-10 max-w-lg mx-auto leading-relaxed"
         >
-          Get updates about new volunteer opportunities and community projects
-          happening near you.
+          {isBengali
+            ? "আপনার এলাকার নতুন স্বেচ্ছাসেবার সুযোগ ও সামাজিক উদ্যোগের খবর পান।"
+            : "Get updates about new volunteer opportunities and community projects happening near you."}
         </motion.p>
 
         {/* Form */}
@@ -86,7 +90,9 @@ export default function NewsletterSection() {
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#65472D]" />
             <Input
               type="email"
-              placeholder="Enter your email address"
+              placeholder={
+                isBengali ? "আপনার ইমেইল ঠিকানা লিখুন" : "Enter your email address"
+              }
               className="h-12 pl-10 pr-4 rounded-full bg-[#F7F1E3] border-[#C99A4B]/30 text-[#064B38] placeholder:text-[#65472D]/60 text-sm focus-visible:border-[#C99A4B] focus-visible:ring-[#C99A4B]/30"
             />
           </div>
@@ -94,7 +100,7 @@ export default function NewsletterSection() {
             type="submit"
             className="h-12 px-7 rounded-full bg-[#C83D2B] text-white hover:bg-[#C83D2B]/85 text-sm font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all shrink-0"
           >
-            Subscribe
+            {isBengali ? "সাবস্ক্রাইব করুন" : "Subscribe"}
             <Send className="size-4 ml-1" />
           </Button>
         </motion.form>
@@ -108,7 +114,9 @@ export default function NewsletterSection() {
           className="flex items-center justify-center gap-2 mt-5 text-xs text-[#F7F1E3]/50"
         >
           <ShieldCheck className="size-3.5 text-[#C99A4B]" />
-          Your privacy is respected. We never share your information.
+          {isBengali
+            ? "আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। আপনার তথ্য আমরা কারও সঙ্গে ভাগ করি না।"
+            : "Your privacy is respected. We never share your information."}
         </motion.p>
 
         {/* Bottom ornament */}
